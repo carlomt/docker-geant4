@@ -50,23 +50,26 @@ Aqua window manager for X11.
 --prefs-domain <domain>   Change the domain used for reading preferences
                           (default: org.xquartz.X11
 ```
-The last line shows the default domain, in this case org.xquartz.X11, before XQuartz 2.8.0 was: `org.macosforge.xquartz.X11`
-you can check that with:
-
-`defaults read org.xquartz.X11`
-
-and change it with:
-
-`defaults write org.xquartz.X11 enable_iglx -bool true`
-
-restart xquartz
-
-Allow X11 forwarding to local containers:
-
-`xhost +localhost`
-
+The last line shows the default domain, in this case `org.xquartz.X11`. Before XQuartz 2.8.0 the default domain was: `org.macosforge.xquartz.X11`.
+You can check the default domain  with:
+```
+defaults read org.xquartz.X11
+```
+To have GLX acceleration you must enable it with:
+```
+defaults write org.xquartz.X11 enable_iglx -bool true
+```
+restart xquartz. You can check if GLX is now enabled again with:
+```
+defaults read org.xquartz.X11
+```
+Finally, you have to allow X11 forwarding to local containers:
+```
+xhost +localhost
+```
 the latter command has to be executed every time XQuartz is restarted.
 
 Finally you can run the docker container:
-
-`docker run --rm -it -e DISPLAY=docker.for.mac.host.internal:0 --volume=<GEANT4_DATASETS_PATH>:/opt/geant4/data:ro carlomt/geant4:latest-gui bash`
+```
+docker run --rm -it -e DISPLAY=docker.for.mac.host.internal:0 --volume=<GEANT4_DATASETS_PATH>:/opt/geant4/data:ro carlomt/geant4:latest-gui bash
+```
