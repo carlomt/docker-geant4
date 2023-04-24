@@ -27,14 +27,29 @@ To save space, Geant4 examples have been removed, to download them:
 ## GUI
 
 ### Mac
+Install XQuartz
+
+start XQuartz:
+
+`open -a XQuartz`
+
+go to XQuartz->Settings and in the `Security` panel enable `Allow connections from network clients`
+
+restart XQuartz:
+
+Check where the XQuartz config file, or domain, is located with:
+
 `quartz-wm --help`
+
 which should output:
-`usage: quartz-wm OPTIONS
+```
+usage: quartz-wm OPTIONS
 Aqua window manager for X11.
 
 --version                 Print the version string
 --prefs-domain <domain>   Change the domain used for reading preferences
-                          (default: org.xquartz.X11)`
+                          (default: org.xquartz.X11
+```
 The last line shows the default domain, in this case org.xquartz.X11, before XQuartz 2.8.0 was: `org.macosforge.xquartz.X11`
 you can check that with:
 
@@ -46,8 +61,12 @@ and change it with:
 
 restart xquartz
 
-`xhost + localhost`
+Allow X11 forwarding to local containers:
 
-and finally run the docker container:
+`xhost +localhost`
+
+the latter command has to be executed every time XQuartz is restarted.
+
+Finally you can run the docker container:
 
 `docker run --rm -it -e DISPLAY=docker.for.mac.host.internal:0 --volume=<GEANT4_DATASETS_PATH>:/opt/geant4/data:ro carlomt/geant4:latest-gui bash`
