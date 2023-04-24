@@ -1,8 +1,7 @@
+ARG G4_VERSION 
 ARG BASE_IMAGE=ubuntu:focal
 FROM $BASE_IMAGE AS builder
 LABEL maintainer="carlo.mancini.terracciano@roma1.infn.it"
-
-ARG G4_VERSION=11.0.3
 
 #labels
 LABEL org.label-schema.geant4-version=$G4_VERSION
@@ -44,12 +43,13 @@ RUN apt-get update && \
     rm -rf /var/cache/apt/archives/* && \
     rm -rf /var/lib/apt/lists/*
 
+ARG G4_NAME=geant4.10.07.p04
 RUN mkdir -p /workspace/geant4/build && \
     mkdir -p /opt/geant4/ && \
     wget --quiet -O /workspace/geant4.tar.gz \
-    https://geant4-data.web.cern.ch/geant4-data/releases/source/geant4-v${G4_VERSION}.tar.gz && \
+    https://geant4-data.web.cern.ch/geant4-data/releases/source/${G4_NAME}.tar.gz && \
     tar xf /workspace/geant4.tar.gz -C /workspace/geant4/ && \
-    mv /workspace/geant4/geant4-v${G4_VERSION}/ /workspace/geant4/src/ && \
+    mv /workspace/geant4/${G4_NAME}/ /workspace/geant4/src/ && \
     cd /workspace/geant4/build && \
     cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/opt/geant4 \
     -DCMAKE_C_COMPILER=/usr/bin/clang \
