@@ -26,6 +26,12 @@ To save space, Geant4 examples have been removed, to download them:
 
 ## GUI
 
+the tags ending with `-gui` have also the graphic enabled, to download the last one:
+
+`docker pull carlomt/geant4-gui`
+
+to use the GUI you need to allow X11 forwarding with GLX acceleration (to see the geometry)
+
 ### Mac
 Install XQuartz
 
