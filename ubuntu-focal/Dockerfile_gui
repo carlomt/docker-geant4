@@ -8,9 +8,9 @@ ARG G4_VERSION=11.1.1
 LABEL org.label-schema.geant4-version=$G4_VERSION
 LABEL org.label-schema.build-date=$BUILD_DATE
 LABEL org.label-schema.name="carlomt/geant4"
-LABEL org.label-schema.description="Geant4 Docker image"
+LABEL org.label-schema.description="Geant4 Docker image with GUI"
 LABEL org.label-schema.url="https://github.com/carlomt/docker-geant4"
-LABEL org.label-schema.docker.cmd="docker build -t carlomt/geant4:latest --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --no-cache=true ."
+LABEL org.label-schema.docker.cmd="docker build -t carlomt/geant4:${G4_VERSION}-gui -t carlomt/geant4:latest-gui --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --no-cache=true ."
 
 WORKDIR /workspace
 
@@ -34,9 +34,11 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
     |  tee /etc/apt/sources.list.d/kitware.list >/dev/null 
 
 COPY packages packages
+COPY packages_gui packages_gui
 RUN apt-get update && \
-    apt-get -yq --no-install-recommends install \
+    apt-get -yq --no-install-recommends install \    
     $(cat packages) \
+    $(cat packages_gui) \
     && \
     apt-get -y autoremove && \
     apt-get -y clean && \
@@ -55,8 +57,8 @@ RUN mkdir -p /workspace/geant4/build && \
     -DGEANT4_INSTALL_DATADIR=/opt/geant4/data \
     -DGEANT4_BUILD_MULTITHREADED=ON \
     -DGEANT4_USE_GDML=ON \
-    -DGEANT4_USE_QT=OFF \
-    -DGEANT4_USE_OPENGL_X11=OFF \
+    -DGEANT4_USE_QT=ON \
+    -DGEANT4_USE_OPENGL_X11=ON \
     -DGEANT4_INSTALL_EXAMPLES=OFF \
     ../src/ && \
      ninja install
@@ -79,6 +81,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
      wget 
      
 COPY packages packages
+COPY packages_gui packages_gui
 RUN export DEBIAN_FRONTEND=noninteractive && \
     wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
     | gpg --dearmor - |  tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \
@@ -88,6 +91,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
     apt-get -yq --no-install-recommends install \
     $(cat packages) \
+    $(cat packages_gui) \    
     curl \
     && \
     rm /usr/share/keyrings/kitware-archive-keyring.gpg && \

@@ -4,3 +4,4 @@ pkg-config
 libxerces-c-dev
 libexpat1-dev
 cmake
+g++
