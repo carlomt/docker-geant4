@@ -20,7 +20,7 @@ If some, or all, are missing it is possible to install the datasets from the doc
 
 in this case, if you want to dowload the datasets in a host folder, you must mount the volume without the read-only flag:
 
-`--volume=\"SOME_PATH/geant4-data:/opt/geant4/data`
+`--volume=<GEANT4_DATASETS_PATH>:/opt/geant4/data`
 
 The image will check the datasets at login, 
 
