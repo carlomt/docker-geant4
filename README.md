@@ -14,7 +14,15 @@ I suggest you to map a folder in the host to use always the same dataset with th
 
 `--volume="<GEANT4_DATASETS_PATH>:/opt/geant4/data:ro`
 
-The image will check the datasets at login, if some are missing install them with:
+If some, or all, are missing it is possible to install the datasets from the docker with:
+
+`geant4-config --install-datasets`
+
+in this case, if you want to dowload the datasets in a host folder, you must mount the volume without the read-only flag:
+
+`--volume=\"SOME_PATH/geant4-data:/opt/geant4/data`
+
+The image will check the datasets at login, 
 
 `geant4-config  --install-datasets`
 
@@ -65,7 +73,7 @@ To have GLX acceleration you must enable it with:
 ```
 defaults write org.xquartz.X11 enable_iglx -bool true
 ```
-restart xquartz. You can check if GLX is now enabled again with:
+restart XQuartz again. You can check if GLX is now enabled again with:
 ```
 defaults read org.xquartz.X11
 ```

@@ -16,26 +16,30 @@ alias ll='ls -ltrh'
 source  /opt/geant4/bin/geant4.sh
 
 echo ""
-echo "## gcc version ############################################################"
+echo "## gcc version ##############################################################################"
 gcc --version
 echo ""
-echo "## CMake version ##########################################################"
+echo "## CMake version ############################################################################"
 cmake --version
 echo ""
-echo "## Geant4 version #########################################################"
+echo "## Geant4 version ###########################################################################"
 geant4-config --version
 echo ""
-echo "## checking Geant4 datasets ###############################################"
+echo "## checking Geant4 datasets #################################################################"
 /opt/geant4/bin/geant4-config --check-datasets
 echo ""
-echo "this container expects to find Geant4 datasets in /opt/geant4/data"
-echo "it is suggested to mount a folder from the host with the datasets:"
+echo "To keep the size of the Docker images limited, the Geant4 datasets are not installed."
+echo "They are expect to be found in /opt/geant4/data"
+echo "I suggest you to map a folder in the host to use always the same dataset with the option:"
 echo "--volume=\"SOME_PATH/geant4-data:/opt/geant4/data:ro\" "
-echo "otherwise, it is possible to install them with:"
-echo "apt update && apt install curl && geant4-config --install-datasets"
-echo "###########################################################################"
+echo "If some, or all, are missing it is possible to install the datasets from the docker with:
+echo "geant4-config --install-datasets"
+echo "in this case, if you want to dowload the datasets in a host folder,"
+echo "you must mount the volume without the read-only flag:"
+echo "--volume=\"SOME_PATH/geant4-data:/opt/geant4/data\" "
+echo "#############################################################################################"
 echo ""
-echo "## Geant4 examples ########################################################"
+echo "## Geant4 examples ##########################################################################"
 echo "To save space, Geant4 examples have been removed, to download them:"
 echo "wget https://gitlab.cern.ch/geant4/geant4/-/archive/master/geant4-master.tar.gz?path=examples -O examples.tar.gz && tar xf examples.tar.gz --strip-components 1"
 echo ""
