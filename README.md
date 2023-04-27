@@ -40,6 +40,16 @@ the tags ending with `-gui` have also the graphic enabled, to download the last 
 
 to use the GUI you need to allow X11 forwarding with GLX acceleration (to see the geometry)
 
+### Linux
+Add local connections to X11 access control list:
+
+`xhost local:root`
+
+Run the docker container mapping /tmp/.X11-unix to the image and the display:
+```
+docker run --rm -it -e DISPLAY=$DISPLAY  --volume /tmp/.X11-unix:/tmp/.X11-unix --volume=<GEANT4_DATASETS_PATH>:/opt/geant4/data:ro carlomt/geant4:latest-gui bash
+```
+
 ### Mac
 Install XQuartz
 
