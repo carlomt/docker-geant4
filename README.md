@@ -12,7 +12,7 @@ To keep the size of the Docker images limited, the Geant4 datasets are not insta
 `/opt/geant4/data`
 I suggest you to map a folder in the host to use always the same dataset with the option:
 
-`--volume="<GEANT4_DATASETS_PATH>:/opt/geant4/data:ro`
+`--volume=<GEANT4_DATASETS_PATH>:/opt/geant4/data:ro`
 
 If some, or all, are missing it is possible to install the datasets from the docker with:
 
@@ -20,7 +20,7 @@ If some, or all, are missing it is possible to install the datasets from the doc
 
 in this case, if you want to dowload the datasets in a host folder, you must mount the volume without the read-only flag:
 
-`--volume=\"SOME_PATH/geant4-data:/opt/geant4/data`
+`--volume=<GEANT4_DATASETS_PATH>:/opt/geant4/data`
 
 The image will check the datasets at login, 
 
@@ -36,9 +36,19 @@ To save space, Geant4 examples have been removed, to download them:
 
 the tags ending with `-gui` have also the graphic enabled, to download the last one:
 
-`docker pull carlomt/geant4-gui`
+`docker pull carlomt/geant4:latest-gui`
 
 to use the GUI you need to allow X11 forwarding with GLX acceleration (to see the geometry)
+
+### Linux
+Add local connections to X11 access control list:
+
+`xhost local:root`
+
+Run the docker container mapping /tmp/.X11-unix to the image and the display:
+```
+docker run --rm -it -e DISPLAY=$DISPLAY  --volume /tmp/.X11-unix:/tmp/.X11-unix --volume=<GEANT4_DATASETS_PATH>:/opt/geant4/data:ro carlomt/geant4:latest-gui bash
+```
 
 ### Mac
 Install XQuartz
