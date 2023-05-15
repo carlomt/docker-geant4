@@ -1,0 +1,70 @@
+version: "3.9"
+services:
+   xeyes:
+      image: "carlomt/xeyes"
+      stdin_open: true 
+      tty: true
+      volumes:
+         - X11-unix:/tmp/.X11-unix      
+      environment:
+         - DISPLAY=${DOCKERDISPLAY}
+   gears:
+      image: "carlomt/gears"
+      stdin_open: true 
+      tty: true
+      volumes:
+         - X11-unix:/tmp/.X11-unix      
+      environment:
+         - DISPLAY=${DOCKERDISPLAY}         
+   geant4:
+      image: "carlomt/geant4:latest"
+      stdin_open: true 
+      tty: true
+      entrypoint: ["/usr/bin/bash", "-l"]
+      volumes:
+         - X11-unix:/tmp/.X11-unix
+         - ./geant4-datasets:/opt/geant4/data:ro
+         - docker-home:/root
+      working_dir: /root
+      # depends_on:
+      #    data-downloader:
+      #      condition: service_completed_successfully
+   geant4-gui:
+      image: "carlomt/geant4:latest-gui"
+      stdin_open: true 
+      tty: true
+      environment:
+         - DISPLAY=${DOCKERDISPLAY}        
+      entrypoint: ["/usr/bin/bash", "-l"]
+      volumes:
+         - X11-unix:/tmp/.X11-unix
+         - ./geant4-datasets:/opt/geant4/data:ro
+         - docker-home:/root
+      working_dir: /root
+      # depends_on:
+      #    data-downloader:
+      #      condition: service_completed_successfully      
+   prepare:
+      image: "carlomt/geant4:latest"
+      command:
+        - |
+          /opt/geant4/bin/geant4-config --install-datasets 
+      stdin_open: true       
+      tty: true      
+      volumes:
+         - ./geant4-datasets:/opt/geant4/data
+volumes:
+   geant4-datasets:
+      external: true
+   docker-home:
+       driver: local
+       driver_opts:
+          type: 'none'
+          o: 'bind'
+          device: '${DOCKERHOME}'
+   X11-unix:
+       driver: local
+       driver_opts:
+          type: 'none'
+          o: 'bind'
+          device: '${X11FOLDER}'

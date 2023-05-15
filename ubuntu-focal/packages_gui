@@ -2,3 +2,4 @@ qt5-default
 libqt5opengl5-dev
 libx11-dev
 libxmu-dev
+libgl1-mesa-glx 

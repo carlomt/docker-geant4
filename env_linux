@@ -1,0 +1,3 @@
+DOCKERDISPLAY=$DISPLAY
+X11FOLDER=/tmp/.X11-unix
+DOCKERHOME=./.docker-home
