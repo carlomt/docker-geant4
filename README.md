@@ -113,12 +113,17 @@ docker run --rm -it -e DISPLAY=docker.for.mac.host.internal:0 --volume=<GEANT4_D
 ## Compose
 
 To simplify the use of these images we developed a Docker Compose file, to use it donwload it to a folder from
+
 https://raw.githubusercontent.com/carlomt/docker-geant4/main/docker-compose.yml
 
 in the same folder, download one of the following files accordingly to your operating system
+
 https://raw.githubusercontent.com/carlomt/docker-geant4/main/env_linux
+
 https://raw.githubusercontent.com/carlomt/docker-geant4/main/env_windows
+
 https://raw.githubusercontent.com/carlomt/docker-geant4/main/env_mac
+
 and rename it .env
 
 run:
@@ -133,5 +138,8 @@ or
 
 `docker compose run geant4-gui`
 
+If you wish to use the GUI you have still 
+
 if you want to use the GUI.
+
 The home in the container is mapped to a subfolder called `workdir` created in the folder where you placed the `docker-compose.yml` and `.env` files
