@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=carlomt/geant4
+ARG BASE_IMAGE=carlomt/geant4:latest
 FROM $BASE_IMAGE AS builder
 LABEL maintainer="carlo.mancini.terracciano@roma1.infn.it"
 
