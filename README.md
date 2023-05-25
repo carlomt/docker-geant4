@@ -50,8 +50,20 @@ Run the docker container mapping /tmp/.X11-unix to the image and the display:
 docker run --rm -it -e DISPLAY=$DISPLAY  --volume /tmp/.X11-unix:/tmp/.X11-unix --volume=<GEANT4_DATASETS_PATH>:/opt/geant4/data:ro carlomt/geant4:latest-gui bash
 ```
 
+### Windows
+If you don't have X11 already installed (it should be on the latest versions of Windows 11), download XMing from
+
+https://sourceforge.net/projects/xming/
+
+use the Powershell terminal to launch docker:
+```
+docker run --rm -it -e DISPLAY=docker.host.internal:0 --volume=<GEANT4_DATASETS_PATH>:/opt/geant4/data:ro carlomt/geant4:latest-gui bash
+```
+
 ### Mac
 Install XQuartz
+
+https://www.xquartz.org/
 
 start XQuartz:
 
@@ -97,3 +109,29 @@ Finally you can run the docker container:
 ```
 docker run --rm -it -e DISPLAY=docker.for.mac.host.internal:0 --volume=<GEANT4_DATASETS_PATH>:/opt/geant4/data:ro carlomt/geant4:latest-gui bash
 ```
+
+## Compose
+
+To simplify the use of these images we developed a Docker Compose file, to use it donwload it to a folder from
+https://raw.githubusercontent.com/carlomt/docker-geant4/main/docker-compose.yml
+
+in the same folder, download one of the following files accordingly to your operating system
+https://raw.githubusercontent.com/carlomt/docker-geant4/main/env_linux
+https://raw.githubusercontent.com/carlomt/docker-geant4/main/env_windows
+https://raw.githubusercontent.com/carlomt/docker-geant4/main/env_mac
+and rename it .env
+
+run:
+
+`docker compose run prepare`
+
+it will create the subfolders, download the Geant4 datasets and source code. Once it has finished, you can run the Geant4 container:
+
+`docker compose run geant4`
+
+or
+
+`docker compose run geant4-gui`
+
+if you want to use the GUI.
+The home in the container is mapped to a subfolder called `workdir` created in the folder where you placed the `docker-compose.yml` and `.env` files
