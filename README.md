@@ -45,7 +45,7 @@ Add local connections to X11 access control list:
 
 `xhost local:root`
 
-Run the docker container mapping /tmp/.X11-unix to the image and the display:
+I suggest you to use Docker Compose (see later) otherwise, run the docker container mapping /tmp/.X11-unix to the image and the display:
 ```
 docker run --rm -it -e DISPLAY=$DISPLAY  --volume /tmp/.X11-unix:/tmp/.X11-unix --volume=<GEANT4_DATASETS_PATH>:/opt/geant4/data:ro carlomt/geant4:latest-gui bash
 ```
@@ -55,7 +55,7 @@ If you don't have X11 already installed (it should be on the latest versions of 
 
 https://sourceforge.net/projects/xming/
 
-use the Powershell terminal to launch docker:
+I suggest you to use Docker Compose (see later), otherwise use the Powershell terminal to launch docker:
 ```
 docker run --rm -it -e DISPLAY=docker.host.internal:0 --volume=<GEANT4_DATASETS_PATH>:/opt/geant4/data:ro carlomt/geant4:latest-gui bash
 ```
@@ -105,7 +105,7 @@ xhost +localhost
 ```
 the latter command has to be executed every time XQuartz is restarted.
 
-Finally you can run the docker container:
+I suggest you to use Docker Compose (see later), otherwise you can run the docker container:
 ```
 docker run --rm -it -e DISPLAY=docker.for.mac.host.internal:0 --volume=<GEANT4_DATASETS_PATH>:/opt/geant4/data:ro carlomt/geant4:latest-gui bash
 ```
@@ -143,3 +143,15 @@ If you wish to use the GUI you have still
 if you want to use the GUI.
 
 The home in the container is mapped to a subfolder called `workdir` created in the folder where you placed the `docker-compose.yml` and `.env` files
+
+Docker Compose should automatically create some subfolders needed if they are not existing, namely: `geant4-datasets` and `workdir`. Some version of Docker do not create the directories and gives an error, in case create them by hand:
+
+`mkdir geant4-datasets`
+
+`mkdir workdir`
+
+Remember that still you should enable the X11 forwarding every time you reboot (or restart the X11 server)
+
+`xhost local:root` on linux
+
+`xhost local:root` on mac
