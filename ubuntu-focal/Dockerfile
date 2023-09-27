@@ -2,7 +2,7 @@ ARG BASE_IMAGE=ubuntu:focal
 FROM $BASE_IMAGE AS builder
 LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 
-ARG G4_VERSION=11.1.1
+ARG G4_VERSION=11.1.2
 
 #labels
 LABEL org.label-schema.geant4-version=$G4_VERSION
@@ -12,6 +12,7 @@ LABEL org.label-schema.description="Geant4 Docker image"
 LABEL org.label-schema.url="https://github.com/carlomt/docker-geant4"
 LABEL org.label-schema.docker.cmd="docker build -t carlomt/geant4:latest --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --no-cache=true ."
 
+RUN echo "Geant4 version: ${G4_VERSION}"
 WORKDIR /workspace
 
 ENV LANG=C.UTF-8

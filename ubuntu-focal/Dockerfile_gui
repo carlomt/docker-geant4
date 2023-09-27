@@ -2,7 +2,8 @@ ARG BASE_IMAGE=ubuntu:focal
 FROM $BASE_IMAGE AS builder
 LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 
-ARG G4_VERSION=11.1.1
+ARG G4_VERSION=11.1.2
+#should be passed at building time with: --build-arg G4_VERSION=$(G4_VERSION)
 
 #labels
 LABEL org.label-schema.geant4-version=$G4_VERSION
@@ -10,13 +11,15 @@ LABEL org.label-schema.build-date=$BUILD_DATE
 LABEL org.label-schema.name="carlomt/geant4"
 LABEL org.label-schema.description="Geant4 Docker image with GUI"
 LABEL org.label-schema.url="https://github.com/carlomt/docker-geant4"
-LABEL org.label-schema.docker.cmd="docker build -t carlomt/geant4:${G4_VERSION}-gui -t carlomt/geant4:latest-gui --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --no-cache=true ."
+LABEL org.label-schema.docker.cmd="docker build -t carlomt/geant4:${G4_VERSION}-gui -t carlomt/geant4:latest-gui --build-arg G4_VERSION=$(G4_VERSION) --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --no-cache=true ."
 
 WORKDIR /workspace
 
 ENV LANG=C.UTF-8
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 ENV DEBIAN_FRONTEND=noninteractive
+
+RUN echo "Geant4 version: ${G4_VERSION}"
 
 RUN apt-get update && \
     apt-get -yq --no-install-recommends install \ 
@@ -48,7 +51,7 @@ RUN apt-get update && \
 RUN mkdir -p /workspace/geant4/build && \
     mkdir -p /opt/geant4/ && \
     wget --quiet -O /workspace/geant4.tar.gz \
-    https://geant4-data.web.cern.ch/geant4-data/releases/source/geant4-v${G4_VERSION}.tar.gz && \
+    https://geant4-data.web.cern.ch/geant4-data/releases/source/geant4-v${G4_VERSION}.tar.gz && \    
     tar xf /workspace/geant4.tar.gz -C /workspace/geant4/ && \
     mv /workspace/geant4/geant4-v${G4_VERSION}/ /workspace/geant4/src/ && \
     cd /workspace/geant4/build && \

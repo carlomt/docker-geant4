@@ -2,7 +2,9 @@
 
 ## Docker container with Geant4 for amd64 and arm64
 
-you can download this container with:
+I suggest to use this container using Docker Compose, see the last section of this file.
+
+You can download also download manually this container with:
 
 `docker pull carlomt/geant4`
 
@@ -31,6 +33,14 @@ The image will check the datasets at login,
 To save space, Geant4 examples have been removed, to download them:
 
 `wget https://gitlab.cern.ch/geant4/geant4/-/archive/master/geant4-master.tar.gz?path=examples -O examples.tar.gz && tar xf examples.tar.gz --strip-components 1`
+
+### GUI
+If you want to use the Geant4 GUI, please read the section on how to prepare your host operating system.
+Remember that still you should enable the X11 forwarding every time you reboot (or restart the X11 server)
+
+`xhost local:root` on linux
+
+`xhost +localhost` on mac
 
 ## GUI
 
@@ -114,33 +124,45 @@ docker run --rm -it -e DISPLAY=docker.for.mac.host.internal:0 --volume=<GEANT4_D
 
 To simplify the use of these images we developed a Docker Compose file, to use it donwload it to a folder from
 
-https://raw.githubusercontent.com/carlomt/docker-geant4/main/docker-compose.yml
+https://raw.githubusercontent.com/carlomt/docker-alghero/main/docker-compose.yml
+
+if you want to use curl from the terminal:
+```
+curl https://raw.githubusercontent.com/carlomt/docker-alghero/main/docker-compose.yml --output docker-compose.yml
+```
 
 in the same folder, download one of the following files accordingly to your operating system
+- https://raw.githubusercontent.com/carlomt/docker-alghero/main/env_linux
+- https://raw.githubusercontent.com/carlomt/docker-alghero/main/env_windows
+- https://raw.githubusercontent.com/carlomt/docker-alghero/main/env_mac
+and rename it .env :
 
-https://raw.githubusercontent.com/carlomt/docker-geant4/main/env_linux
+`mv env_<YOU_OPERATING_SYSTEM> .env`
+or, using curl (run only one of these commands, accordingly to your operating system):
 
-https://raw.githubusercontent.com/carlomt/docker-geant4/main/env_windows
-
-https://raw.githubusercontent.com/carlomt/docker-geant4/main/env_mac
-
-and rename it .env
+- linux:
+```
+curl https://raw.githubusercontent.com/carlomt/docker-alghero/main/env_linux --output .env
+```
+- windows:
+```
+curl https://raw.githubusercontent.com/carlomt/docker-alghero/main/env_windows --output .env
+```
+- mac: 
+```
+curl https://raw.githubusercontent.com/carlomt/docker-alghero/main/env_mac --output .env
+```
 
 run:
-
 `docker compose run prepare`
 
 it will create the subfolders, download the Geant4 datasets and source code. Once it has finished, you can run the Geant4 container:
 
 `docker compose run geant4`
 
-or
+or, if you need GUI:
 
 `docker compose run geant4-gui`
-
-If you wish to use the GUI you have still 
-
-if you want to use the GUI.
 
 The home in the container is mapped to a subfolder called `workdir` created in the folder where you placed the `docker-compose.yml` and `.env` files
 
@@ -150,8 +172,3 @@ Docker Compose should automatically create some subfolders needed if they are no
 
 `mkdir workdir`
 
-Remember that still you should enable the X11 forwarding every time you reboot (or restart the X11 server)
-
-`xhost local:root` on linux
-
-`xhost local:root` on mac
