@@ -34,14 +34,6 @@ To save space, Geant4 examples have been removed, to download them:
 
 `wget https://gitlab.cern.ch/geant4/geant4/-/archive/master/geant4-master.tar.gz?path=examples -O examples.tar.gz && tar xf examples.tar.gz --strip-components 1`
 
-### GUI
-If you want to use the Geant4 GUI, please read the section on how to prepare your host operating system.
-Remember that still you should enable the X11 forwarding every time you reboot (or restart the X11 server)
-
-`xhost local:root` on linux
-
-`xhost +localhost` on mac
-
 ## GUI
 
 the tags ending with `-gui` have also the graphic enabled, to download the last one:
@@ -160,10 +152,6 @@ it will create the subfolders, download the Geant4 datasets and source code. Onc
 
 `docker compose run geant4`
 
-or, if you need GUI:
-
-`docker compose run geant4-gui`
-
 The home in the container is mapped to a subfolder called `workdir` created in the folder where you placed the `docker-compose.yml` and `.env` files
 
 Docker Compose should automatically create some subfolders needed if they are not existing, namely: `geant4-datasets` and `workdir`. Some version of Docker do not create the directories and gives an error, in case create them by hand:
@@ -172,3 +160,12 @@ Docker Compose should automatically create some subfolders needed if they are no
 
 `mkdir workdir`
 
+If you need the Geant4 GUI (once you installed the needed preliminary software on your host opearing system as described in the dedicated section of this file), you can run the docker with:
+
+`docker compose run geant4-gui`
+
+Remember that still you should enable the X11 forwarding every time you reboot (or restart the X11 server)
+
+`xhost local:root` on linux
+
+`xhost +localhost` on mac
