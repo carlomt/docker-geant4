@@ -116,33 +116,26 @@ docker run --rm -it -e DISPLAY=docker.for.mac.host.internal:0 --volume=<GEANT4_D
 
 To simplify the use of these images we developed a Docker Compose file, to use it donwload it to a folder from
 
-https://raw.githubusercontent.com/carlomt/docker-alghero/main/docker-compose.yml
+https://raw.githubusercontent.com/carlomt/docker-geant4/main/docker-compose.yml
 
 if you want to use curl from the terminal:
 ```
-curl https://raw.githubusercontent.com/carlomt/docker-alghero/main/docker-compose.yml --output docker-compose.yml
+curl https://raw.githubusercontent.com/carlomt/docker-geant4/main/docker-compose.yml --output docker-compose.yml
 ```
 
-in the same folder, download one of the following files accordingly to your operating system
-- https://raw.githubusercontent.com/carlomt/docker-alghero/main/env_linux
-- https://raw.githubusercontent.com/carlomt/docker-alghero/main/env_windows
-- https://raw.githubusercontent.com/carlomt/docker-alghero/main/env_mac
-and rename it .env :
+in the same folder, download one of the following files accordingly to your operating system:
 
-`mv env_<YOU_OPERATING_SYSTEM> .env`
-or, using curl (run only one of these commands, accordingly to your operating system):
-
-- linux:
+- linux
 ```
-curl https://raw.githubusercontent.com/carlomt/docker-alghero/main/env_linux --output .env
+curl https://raw.githubusercontent.com/carlomt/docker-geant4/main/env_linux --output .env
 ```
-- windows:
+- windows
 ```
-curl https://raw.githubusercontent.com/carlomt/docker-alghero/main/env_windows --output .env
+curl https://raw.githubusercontent.com/carlomt/docker-geant4/main/env_windows --output .env
 ```
-- mac: 
+- mac
 ```
-curl https://raw.githubusercontent.com/carlomt/docker-alghero/main/env_mac --output .env
+curl https://raw.githubusercontent.com/carlomt/docker-geant4/main/env_mac --output .env
 ```
 
 run:
