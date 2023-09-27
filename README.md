@@ -169,3 +169,12 @@ Remember that still you should enable the X11 forwarding every time you reboot (
 `xhost local:root` on linux
 
 `xhost +localhost` on mac
+
+You can check X11 forwarding with:
+
+`docker compose run xeyes`
+
+and 3D acceleration with:
+
+`docker compose run gears`
+
