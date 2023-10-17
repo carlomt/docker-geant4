@@ -1,6 +1,4 @@
 export HISTCONTROL=ignoredups
-bind '"\e[A":history-search-backward'
-bind '"\e[B":history-search-forward'
 
 alias cd..='cd ..'
 alias ls='ls -GF'
@@ -16,8 +14,8 @@ alias ll='ls -ltrh'
 source  /opt/geant4/bin/geant4.sh
 
 echo " "
-echo "## gcc version ##############################################################################"
-gcc --version
+echo "## Compiler version ##############################################################################"
+$CC --version
 echo " "
 echo "## CMake version ############################################################################"
 cmake --version
@@ -41,5 +39,5 @@ echo "##########################################################################
 echo " "
 echo "## Geant4 examples ##########################################################################"
 echo "To save space, Geant4 examples have been removed, to download them:"
-echo "wget https://gitlab.cern.ch/geant4/geant4/-/archive/master/geant4-master.tar.gz?path=examples -O examples.tar.gz && tar xf examples.tar.gz --strip-components 1"
+echo "wget https://gitlab.cern.ch/geant4/geant4/-/archive/geant4-`geant4-config --version | awk -F '.' '{print $1"."$2}'`-release/geant4-master.tar.gz?path=examples -O examples.tar.gz && tar xf examples.tar.gz --strip-components 1"
 echo " "

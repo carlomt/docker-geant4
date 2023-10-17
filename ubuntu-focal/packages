@@ -3,5 +3,6 @@ ninja-build
 pkg-config
 libxerces-c-dev
 libexpat1-dev
-cmake
 g++
+cmake=3.26.4-0kitware1ubuntu20.04.1
+cmake-data=3.26.4-0kitware1ubuntu20.04.1
