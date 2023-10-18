@@ -113,8 +113,8 @@ COPY --from=builder /opt/geant4/ /opt/geant4/
 
 RUN mkdir -p /opt/geant4/data && chmod 777 /opt/geant4/data
 
-COPY bashrc /etc/profile.d/02-custom.sh
-COPY clang.sh /etc/profile.d/03-clang.sh
+COPY gcc.sh /etc/profile.d/02-gcc.sh
+COPY bashrc /etc/profile.d/03-custom.sh
 ENV LIBGL_ALWAYS_INDIRECT=1
 
 ENTRYPOINT  ["/usr/bin/bash", "-l", "-c"]

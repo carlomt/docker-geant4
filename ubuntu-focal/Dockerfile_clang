@@ -1,7 +1,7 @@
 ARG G4_VERSION 
 ARG BASE_IMAGE=ubuntu:focal
 FROM $BASE_IMAGE AS builder
-LABEL maintainer="carlo.mancini.terracciano@roma1.infn.it"
+LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 
 ARG G4_VERSION=11.1.2
 
@@ -108,7 +108,7 @@ COPY --from=builder /opt/geant4/ /opt/geant4/
 
 RUN mkdir -p /opt/geant4/data && chmod 777 /opt/geant4/data
 
-COPY bashrc /etc/profile.d/02-custom.sh
-COPY clang.sh /etc/profile.d/03-clang.sh
+COPY clang.sh /etc/profile.d/02-clang.sh
+COPY bashrc /etc/profile.d/03-custom.sh
 
 ENTRYPOINT  ["/usr/bin/bash", "-l", "-c"]
