@@ -2,7 +2,7 @@ ARG BASE_IMAGE=ubuntu:focal
 FROM $BASE_IMAGE AS builder
 LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 
-ARG G4_VERSION=11.1.2
+ARG G4_VERSION=11.1.3
 
 #labels
 LABEL org.label-schema.geant4-version=$G4_VERSION
