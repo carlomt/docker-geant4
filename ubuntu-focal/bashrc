@@ -30,7 +30,7 @@ echo "To keep the size of the Docker images limited, the Geant4 datasets are not
 echo "They are expect to be found in /opt/geant4/data"
 echo "I suggest you to map a folder in the host to use always the same dataset with the option:"
 echo "--volume=\"SOME_PATH/geant4-data:/opt/geant4/data:ro\" "
-echo "If some, or all, are missing it is possible to install the datasets from the docker with:
+echo "If some, or all, are missing it is possible to install the datasets from the docker with:"
 echo "geant4-config --install-datasets"
 echo "in this case, if you want to dowload the datasets in a host folder,"
 echo "you must mount the volume without the read-only flag:"
