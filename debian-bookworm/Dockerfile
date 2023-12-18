@@ -11,7 +11,6 @@ LABEL org.label-schema.description="Geant4 Docker image"
 LABEL org.label-schema.url="https://github.com/carlomt/docker-geant4"
 LABEL org.label-schema.docker.cmd="docker build -t carlomt/geant4:latest --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --no-cache=true ."
 
-RUN echo "Geant4 version: ${G4_VERSION}"
 WORKDIR /workspace
 
 ENV LANG=C.UTF-8
