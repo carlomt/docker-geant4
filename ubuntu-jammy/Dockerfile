@@ -2,7 +2,7 @@ ARG BASE_IMAGE=ubuntu:jammy
 FROM $BASE_IMAGE AS builder
 LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 
-ARG G4_VERSION=11.1.1
+ARG G4_VERSION=11.2.0
 
 #labels
 LABEL org.label-schema.geant4-version=$G4_VERSION
@@ -106,6 +106,7 @@ COPY --from=builder /opt/geant4/ /opt/geant4/
 
 RUN mkdir -p /opt/geant4/data && chmod 777 /opt/geant4/data
 
-COPY bashrc /etc/profile.d/custom.sh
+COPY gcc.sh /etc/profile.d/02-gcc.sh
+COPY bashrc /etc/profile.d/03-custom.sh
 
 ENTRYPOINT  ["/usr/bin/bash", "-l", "-c"]

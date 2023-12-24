@@ -4,9 +4,6 @@ alias cd..='cd ..'
 alias ls='ls -GF'
 alias ll='ls -ltrh'
 
-# Only load Liquidprompt in interactive shells, not from a script or from scp
-#[[ $- = *i* ]] && source /opt/liquidprompt/liquidprompt
-
 # CMake
 #export PATH=/opt/cmake/bin/:$PATH
 

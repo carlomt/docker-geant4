@@ -71,6 +71,6 @@ COPY --from=builder /opt/geant4/ /opt/geant4/
 RUN mkdir -p /opt/geant4/data && chmod 777 /opt/geant4/data
 
 COPY gcc.sh /etc/profile.d/02-gcc.sh
-COPY bashrc /etc/profile.d/03-custom.sh
+COPY bashrc.sh /etc/profile.d/03-custom.sh
 
-ENTRYPOINT  ["/usr/bin/bash", "-l", "-c"]
+#ENTRYPOINT  ["/usr/bin/bash", "-l", "-c"]
