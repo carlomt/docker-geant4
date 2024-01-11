@@ -4,7 +4,7 @@
 
 I suggest to use this container using Docker Compose, see the last section of this file.
 
-You can download also download manually this container with:
+You can also download manually this container with:
 
 `docker pull carlomt/geant4`
 
@@ -26,13 +26,11 @@ in this case, if you want to dowload the datasets in a host folder, you must mou
 
 The image will check the datasets at login, 
 
-`geant4-config  --install-datasets`
-
 ### Geant4 examples
 
 To save space, Geant4 examples have been removed, to download them:
 
-`wget https://gitlab.cern.ch/geant4/geant4/-/archive/master/geant4-master.tar.gz?path=examples -O examples.tar.gz && tar xf examples.tar.gz --strip-components 1`
+`curl https://gitlab.cern.ch/geant4/geant4/-/archive/geant4-`/opt/geant4/bin/geant4-config --version | awk -F '.' '{print $1"."$2}'`-release/geant4-master.tar.gz?path=examples --output examples.tar.gz && tar xf examples.tar.gz --strip-components 1`
 
 ## GUI
 
