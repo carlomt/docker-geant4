@@ -12,12 +12,13 @@ LABEL org.label-schema.url="https://github.com/carlomt/docker-geant4"
 LABEL org.label-schema.docker.cmd="docker build -t carlomt/geant4:latest --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --no-cache=true ."
 
 RUN dnf install -y epel-release 
-RUN dnf install -y \
+RUN dnf --enablerepo=crb install -y \
     gcc \
     g++ \
     cmake \    
     xerces-c xerces-c-devel \
-    expat expat-devel && \
+    expat expat-devel  \
+    ninja-build && \     
     dnf clean all
     
 #######################################################################
@@ -31,7 +32,7 @@ RUN mkdir -p /tmp/geant4/build && \
     tar xf /tmp/geant4.tar.gz -C /tmp/geant4/ && \
     mv /tmp/geant4/geant4-v${G4_VERSION}/ /tmp/geant4/src/ && \
     cd /tmp/geant4/build && \
-    cmake  -DCMAKE_INSTALL_PREFIX=/opt/geant4 \
+    cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/opt/geant4 \
     -DGEANT4_INSTALL_DATA=OFF \
     -DGEANT4_INSTALL_DATADIR=/opt/geant4/data \
     -DGEANT4_BUILD_MULTITHREADED=ON \
@@ -40,8 +41,7 @@ RUN mkdir -p /tmp/geant4/build && \
     -DGEANT4_USE_OPENGL_X11=OFF \
     -DGEANT4_INSTALL_EXAMPLES=OFF \
     ../src/ && \
-    make -j`nproc` && \
-    make install
+    ninja install
     
 #######################################################################
 
