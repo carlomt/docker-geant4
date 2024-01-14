@@ -28,23 +28,24 @@ The image will check the datasets at login,
 
 ### Geant4 examples
 
-To save space, Geant4 examples have been removed, to download them:
-
-```curl https://gitlab.cern.ch/geant4/geant4/-/archive/geant4-`/opt/geant4/bin/geant4-config --version | awk -F '.' '{print $1"."$2}'`-release/geant4-master.tar.gz?path=examples --output examples.tar.gz && tar xf examples.tar.gz --strip-components 1```
+To save space, Geant4 examples have been not included, to download them:
+```
+curl https://gitlab.cern.ch/geant4/geant4/-/archive/geant4-`/opt/geant4/bin/geant4-config --version | awk -F '.' '{print $1"."$2}'`-release/geant4-master.tar.gz?path=examples --output examples.tar.gz && tar xf examples.tar.gz --strip-components 1
+```
 
 ## GUI
 
 the tags ending with `-gui` have also the graphic enabled, to download the last one:
-
-`docker pull carlomt/geant4:latest-gui`
-
+```
+docker pull carlomt/geant4:latest-gui
+```
 to use the GUI you need to allow X11 forwarding with GLX acceleration (to see the geometry)
 
 ### Linux
 Add local connections to X11 access control list:
-
-`xhost local:root`
-
+```
+xhost local:root
+```
 I suggest you to use Docker Compose (see later) otherwise, run the docker container mapping /tmp/.X11-unix to the image and the display:
 ```
 docker run --rm -it -e DISPLAY=$DISPLAY  --volume /tmp/.X11-unix:/tmp/.X11-unix --volume=<GEANT4_DATASETS_PATH>:/opt/geant4/data:ro carlomt/geant4:latest-gui bash
@@ -66,17 +67,17 @@ Install XQuartz
 https://www.xquartz.org/
 
 start XQuartz:
-
-`open -a XQuartz`
-
+```
+open -a XQuartz
+```
 go to XQuartz->Settings and in the `Security` panel enable `Allow connections from network clients`
 
 restart XQuartz:
 
 Check where the XQuartz config file, or domain, is located with:
-
-`quartz-wm --help`
-
+```
+quartz-wm --help
+```
 which should output:
 ```
 usage: quartz-wm OPTIONS
@@ -137,35 +138,43 @@ curl https://raw.githubusercontent.com/carlomt/docker-geant4/main/env_mac --outp
 ```
 
 run:
-`docker compose run prepare`
-
+```
+docker compose run prepare
+```
 it will create the subfolders, download the Geant4 datasets and source code. Once it has finished, you can run the Geant4 container:
-
-`docker compose run geant4`
-
+```
+docker compose run geant4
+```
 The home in the container is mapped to a subfolder called `workdir` created in the folder where you placed the `docker-compose.yml` and `.env` files
 
 Docker Compose should automatically create some subfolders needed if they are not existing, namely: `geant4-datasets` and `workdir`. Some version of Docker do not create the directories and gives an error, in case create them by hand:
-
-`mkdir geant4-datasets`
-
-`mkdir workdir`
+```
+mkdir geant4-datasets
+```
+```
+mkdir workdir
+```
 
 If you need the Geant4 GUI (once you installed the needed preliminary software on your host opearing system as described in the dedicated section of this file), you can run the docker with:
+```
+docker compose run geant4-gui
+```
+Remember that still you should enable the X11 forwarding every time you reboot (or restart the X11 server), accordingly to your operating system:
 
-`docker compose run geant4-gui`
-
-Remember that still you should enable the X11 forwarding every time you reboot (or restart the X11 server)
-
-`xhost local:root` on linux
-
-`xhost +localhost` on mac
+- Linux
+```
+xhost local:root
+```
+- MacOs
+```
+xhost +localhost
+```
 
 You can check X11 forwarding with:
-
-`docker compose run xeyes`
-
+```
+docker compose run xeyes
+```
 and 3D acceleration with:
-
-`docker compose run gears`
-
+```
+docker compose run gears
+```
