@@ -2,6 +2,7 @@ FROM almalinux:9.3 as common
 LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 
 ARG G4_VERSION=11.2.0
+ARG CMAKE_VERSION=3.28.1
 
 #labels
 LABEL org.label-schema.geant4-version=$G4_VERSION
@@ -13,16 +14,23 @@ LABEL org.label-schema.docker.cmd="docker build -t carlomt/geant4:latest --build
 
 RUN dnf install -y epel-release 
 RUN dnf --enablerepo=crb install -y \
-    cmake \
-    expat expat-devel \
+    expat expat-devel  \
     gcc \
     g++ \
-    ninja-build \
+    ninja-build && \     
     xerces-c xerces-c-devel \
-    which \
-    && \
     dnf clean all
-    
+
+RUN mkdir -p /tmp/cmake/ && \
+    mkdir -p /opt/cmake && \
+    curl -L https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}.tar.gz \
+    --output /tmp/cmake.tar.gz && \
+    tar xf /tmp/cmake.tar.gz -C /tmp/cmake && \
+    cd /tmp/cmake/cmake-${CMAKE_VERSION} && \
+     ./bootstrap && \
+     make -j`nproc` && \
+     make install
+
 #######################################################################
 
 FROM common AS builder
