@@ -56,6 +56,7 @@ RUN source /opt/rh/devtoolset-9/enable && \
     -DGEANT4_USE_QT=OFF \
     -DGEANT4_USE_OPENGL_X11=OFF \
     -DGEANT4_INSTALL_EXAMPLES=OFF \
+    -DGEANT4_INSTALL_PACKAGE_CACHE=OFF \
     ../src/ && \
     make -j`nproc` && \
     make install
