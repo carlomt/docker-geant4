@@ -1,7 +1,7 @@
 FROM debian:bookworm as common
 LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 
-ARG G4_VERSION=11.2.0
+ARG G4_VERSION=11.2.1
 
 #labels
 LABEL org.label-schema.geant4-version=$G4_VERSION
@@ -12,6 +12,9 @@ LABEL org.label-schema.url="https://github.com/carlomt/docker-geant4"
 LABEL org.label-schema.docker.cmd="docker build -t carlomt/geant4:latest --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --no-cache=true ."
 
 WORKDIR /workspace
+
+ENV CC=/usr/bin/gcc
+ENV CXX=/usr/bin/g++
 
 ENV LANG=C.UTF-8
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
@@ -70,7 +73,10 @@ COPY --from=builder /opt/geant4/ /opt/geant4/
 
 RUN mkdir -p /opt/geant4/data && chmod 777 /opt/geant4/data
 
-COPY gcc.sh /etc/profile.d/02-gcc.sh
-COPY bashrc.sh /etc/profile.d/03-custom.sh
+# Set the entrypoint script to set Geant4 environment variables
+COPY bashrc.sh /opt/bashrc.sh
+RUN chmod +x /opt/bashrc.sh
+ENTRYPOINT ["/opt/bashrc.sh"]
 
-#ENTRYPOINT  ["/usr/bin/bash", "-l", "-c"]
+# Default command to execute if none is provided to docker run
+CMD ["bash"]
