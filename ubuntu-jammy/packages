@@ -5,3 +5,4 @@ libxerces-c-dev
 libexpat1-dev
 cmake
 g++
+kitware-archive-keyring

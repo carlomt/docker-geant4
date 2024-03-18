@@ -47,13 +47,13 @@ RUN apt-get update && \
 
 FROM common AS builder
 
-RUN mkdir -p /workspace/geant4/build && \
+RUN mkdir -p /tmp/geant4/build && \
     mkdir -p /opt/geant4/ && \
     curl https://geant4-data.web.cern.ch/geant4-data/releases/source/geant4-v${G4_VERSION}.tar.gz \
-    --output /workspace/geant4.tar.gz &&\    
-    tar xf /workspace/geant4.tar.gz -C /workspace/geant4/ && \
-    mv /workspace/geant4/geant4-v${G4_VERSION}/ /workspace/geant4/src/ && \
-    cd /workspace/geant4/build && \
+    --output /tmp/geant4.tar.gz && \
+    tar xf /tmp/geant4.tar.gz -C /tmp/geant4/ && \
+    mv /tmp/geant4/geant4-v${G4_VERSION}/ /tmp/geant4/src/ && \
+    cd /tmp/geant4/build && \
     cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/opt/geant4 \
     -DGEANT4_INSTALL_DATA=OFF \
     -DGEANT4_INSTALL_DATADIR=/opt/geant4/data \
