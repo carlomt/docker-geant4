@@ -1,8 +1,9 @@
 ARG BASE_IMAGE=ubuntu:jammy
-FROM $BASE_IMAGE AS builder
+
+FROM $BASE_IMAGE AS common
 LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 
-ARG G4_VERSION=11.2.0
+ARG G4_VERSION=11.2.1
 
 #labels
 LABEL org.label-schema.geant4-version=$G4_VERSION
@@ -12,7 +13,8 @@ LABEL org.label-schema.description="Geant4 Docker image"
 LABEL org.label-schema.url="https://github.com/carlomt/docker-geant4"
 LABEL org.label-schema.docker.cmd="docker build -t carlomt/geant4:latest --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --no-cache=true ."
 
-WORKDIR /workspace
+ENV CC=/usr/bin/gcc
+ENV CXX=/usr/bin/g++
 
 ENV LANG=C.UTF-8
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
@@ -20,20 +22,16 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
     apt-get -yq --no-install-recommends install \ 
-#    gnupg2 \
-#    software-properties-common
      ca-certificates \
      dirmngr \
      gpg \
-     wget
+     curl
 
-RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
-    | gpg --dearmor - |  tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \
-    echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] \
-    https://apt.kitware.com/ubuntu/ jammy main' \
-    |  tee /etc/apt/sources.list.d/kitware.list >/dev/null 
+RUN curl -s https://apt.kitware.com/keys/kitware-archive-latest.asc | gpg --dearmor - |  tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \
+    echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' \
+    |  tee /etc/apt/sources.list.d/kitware.list >/dev/null
 
-COPY packages packages
+COPY ./packages packages
 RUN apt-get update && \
     apt-get -yq --no-install-recommends install \
     $(cat packages) \
@@ -43,13 +41,17 @@ RUN apt-get update && \
     rm -rf /var/cache/apt/archives/* && \
     rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /workspace/geant4/build && \
+#######################################################################
+
+FROM common AS builder
+
+RUN mkdir -p /tmp/geant4/build && \
     mkdir -p /opt/geant4/ && \
-    wget --quiet -O /workspace/geant4.tar.gz \
-    https://geant4-data.web.cern.ch/geant4-data/releases/source/geant4-v${G4_VERSION}.tar.gz && \
-    tar xf /workspace/geant4.tar.gz -C /workspace/geant4/ && \
-    mv /workspace/geant4/geant4-v${G4_VERSION}/ /workspace/geant4/src/ && \
-    cd /workspace/geant4/build && \
+    curl -s https://geant4-data.web.cern.ch/geant4-data/releases/source/geant4-v${G4_VERSION}.tar.gz  \
+    --output /tmp/geant4.tar.gz && \ 
+    tar xf /tmp/geant4.tar.gz -C /tmp/geant4/ && \
+    mv /tmp/geant4/geant4-v${G4_VERSION}/ /tmp/geant4/src/ && \
+    cd /tmp/geant4/build && \
     cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/opt/geant4 \
     -DGEANT4_INSTALL_DATA=OFF \
     -DGEANT4_INSTALL_DATADIR=/opt/geant4/data \
@@ -63,50 +65,18 @@ RUN mkdir -p /workspace/geant4/build && \
     
 #######################################################################
 
-FROM $BASE_IMAGE
-
-ENV LANG=C.UTF-8
-RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
-
-RUN export DEBIAN_FRONTEND=noninteractive && \
-    apt-get update && \
-    apt-get -yq --no-install-recommends install \ 
-#    gnupg2 \
-#    software-properties-common
-     ca-certificates \
-     dirmngr \
-     gpg \
-     wget 
-     
-COPY packages packages
-RUN export DEBIAN_FRONTEND=noninteractive && \
-    wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
-    | gpg --dearmor - |  tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \
-    echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] \
-    https://apt.kitware.com/ubuntu/ jammy main' \
-    |  tee /etc/apt/sources.list.d/kitware.list >/dev/null && \
-    apt-get update && \
-    apt-get -yq --no-install-recommends install \
-    $(cat packages) \
-    curl \
-    && \
-    rm /usr/share/keyrings/kitware-archive-keyring.gpg && \
-    apt-get -yq --no-install-recommends install \
-    kitware-archive-keyring \
-    && \
-    apt-get -y autoremove && \
-    apt-get -y clean && \    
-    rm -rf /var/cache/apt/archives/* && \
-    rm -rf /var/lib/apt/lists/*
-
-#RUN git clone --branch stable https://github.com/nojhan/liquidprompt.git /opt/liquidprompt
+FROM common
 
 COPY --from=builder /opt/geant4/ /opt/geant4/
-#COPY --from=builder /workspace/geant4/src/examples/ /opt/geant4/examples/
 
 RUN mkdir -p /opt/geant4/data && chmod 777 /opt/geant4/data
 
-COPY gcc.sh /etc/profile.d/02-gcc.sh
-COPY bashrc /etc/profile.d/03-custom.sh
+# Set the entrypoint script to set Geant4 environment variables
+COPY ./bashrc.sh /opt/bashrc.sh
+RUN chmod +x /opt/bashrc.sh
+ENTRYPOINT ["/opt/bashrc.sh"]
 
-ENTRYPOINT  ["/usr/bin/bash", "-l", "-c"]
+WORKDIR /workspace
+
+# Default command to execute if none is provided to docker run
+CMD ["bash"]
