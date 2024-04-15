@@ -72,4 +72,7 @@ RUN mkdir -p /opt/geant4/data && chmod 777 /opt/geant4/data
 COPY gcc.sh /etc/profile.d/02-gcc.sh
 COPY bashrc.sh /etc/profile.d/03-custom.sh
 
-#ENTRYPOINT  ["/usr/bin/bash", "-l", "-c"]
+WORKDIR /workspace
+
+# Default command to execute if none is provided to docker run
+CMD ["bash"]
