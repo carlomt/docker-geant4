@@ -1,20 +1,17 @@
 #!/bin/bash
 cat /etc/lsb-release
 
+# gcc
+source /opt/rh/devtoolset-9/enable
+
+# Geant4
+source  /opt/geant4/bin/geant4.sh
+
 export HISTCONTROL=ignoredups
 
 alias cd..='cd ..'
 alias ls='ls -GF'
 alias ll='ls -ltrh'
-
-# Only load Liquidprompt in interactive shells, not from a script or from scp
-#[[ $- = *i* ]] && source /opt/liquidprompt/liquidprompt
-
-# CMake
-#export PATH=/opt/cmake/bin/:$PATH
-
-# Geant4
-source  /opt/geant4/bin/geant4.sh
 
 echo " "
 echo "## Compiler version ##############################################################################"

@@ -11,8 +11,6 @@ LABEL org.label-schema.description="Geant4 Docker image"
 LABEL org.label-schema.url="https://github.com/carlomt/docker-geant4"
 LABEL org.label-schema.docker.cmd="docker build -t carlomt/geant4:latest --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --no-cache=true ."
 
-WORKDIR /workspace
-
 ENV CC=/usr/bin/gcc
 ENV CXX=/usr/bin/g++
 
@@ -21,22 +19,19 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
-    apt-get -yq --no-install-recommends install \ 
-     ca-certificates \
-     dirmngr \
-     gpg \
-     curl
-     
-RUN apt-get update && \
     apt-get -yq --no-install-recommends install \
+    ca-certificates \
+    curl \
+    cmake \
+    cmake-data \
+    dirmngr \
+    gpg \
+    g++ \
+    libexpat1-dev \
+    libxerces-c-dev \
     make \
     ninja-build \
     pkg-config \
-    libxerces-c-dev \
-    libexpat1-dev \
-    g++ \
-    cmake \
-    cmake-data \
     && \
     apt-get -y autoremove && \
     apt-get -y clean && \
@@ -77,6 +72,8 @@ RUN mkdir -p /opt/geant4/data && chmod 777 /opt/geant4/data
 COPY bashrc.sh /opt/bashrc.sh
 RUN chmod +x /opt/bashrc.sh
 ENTRYPOINT ["/opt/bashrc.sh"]
+
+WORKDIR /workspace
 
 # Default command to execute if none is provided to docker run
 CMD ["bash"]
