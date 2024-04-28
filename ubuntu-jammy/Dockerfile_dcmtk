@@ -45,5 +45,3 @@ ENV LANG=C.UTF-8
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 
 COPY --from=builder /opt/dcmtk/ /opt/dcmtk/
-
-ENTRYPOINT  ["/usr/bin/bash", "-l", "-c"]
