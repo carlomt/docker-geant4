@@ -1,4 +1,4 @@
-FROM almalinux:9 as common
+FROM almalinux:9-minimal as common
 LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 
 ARG G4_VERSION
@@ -11,8 +11,8 @@ LABEL org.label-schema.description="Geant4 Docker image"
 LABEL org.label-schema.url="https://github.com/carlomt/docker-geant4"
 LABEL org.label-schema.docker.cmd="docker build -t carlomt/geant4:latest --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --no-cache=true ."
 
-RUN dnf install -y epel-release && \
-    dnf --enablerepo=crb install -y \
+RUN microdnf --enablerepo=crb install -y \
+    epel-release \
     cmake \
     expat expat-devel \
     gcc \
@@ -21,8 +21,8 @@ RUN dnf install -y epel-release && \
     xerces-c xerces-c-devel \
     which \
     && \
-    dnf clean all
-    
+    microdnf clean all
+
 #######################################################################
 
 FROM common AS builder
@@ -30,7 +30,7 @@ FROM common AS builder
 RUN mkdir -p /tmp/geant4/build && \
     mkdir -p /opt/geant4/ && \
     curl https://geant4-data.web.cern.ch/geant4-data/releases/source/geant4-v${G4_VERSION}.tar.gz \
-    --output /tmp/geant4.tar.gz &&\    
+    --output /tmp/geant4.tar.gz &&\
     tar xf /tmp/geant4.tar.gz -C /tmp/geant4/ && \
     mv /tmp/geant4/geant4-v${G4_VERSION}/ /tmp/geant4/src/ && \
     cd /tmp/geant4/build && \
@@ -44,7 +44,7 @@ RUN mkdir -p /tmp/geant4/build && \
     -DGEANT4_INSTALL_EXAMPLES=OFF \
     ../src/ && \
     ninja install
-    
+
 #######################################################################
 
 FROM common

@@ -3,7 +3,7 @@ ARG BASE_IMAGE=ubuntu:jammy
 FROM $BASE_IMAGE AS common
 LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 
-ARG G4_VERSION=11.2.1
+ARG G4_VERSION
 
 #labels
 LABEL org.label-schema.geant4-version=$G4_VERSION

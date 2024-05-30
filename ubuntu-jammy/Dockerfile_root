@@ -1,0 +1,97 @@
+FROM carlomt/geant4:11.2.1-gui-jammy as common
+LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
+
+ARG ROOT_VERSION=latest-stable
+ARG CMAKE_CXX_STANDARD=17
+
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && \
+    apt-get -yq --no-install-recommends install \ 
+davix-dev \
+dcap-dev \
+fonts-freefont-ttf \
+git \
+gfortran \
+libafterimage-dev \
+libcfitsio-dev \
+libfcgi-dev \
+libfftw3-dev \
+libfreetype6-dev \
+libftgl-dev \
+libgfal2-dev \
+libgif-dev \
+libgl2ps-dev \
+libglew-dev \
+libglu-dev \
+libgraphviz-dev \
+libgsl-dev \
+libjpeg-dev \
+liblz4-dev \
+liblzma-dev \
+libmysqlclient-dev \
+libpcre++-dev \
+libpng-dev \
+libpq-dev \
+libsqlite3-dev \
+libssl-dev \
+libtbb-dev \
+libtiff-dev \
+libx11-dev \
+libxext-dev \
+libxft-dev \
+libxml2-dev \
+libxpm-dev \
+libxxhash-dev \
+libz-dev \
+libzstd-dev \
+locales \
+python3-dev \
+python3-numpy \
+srm-ifce-dev \ 
+unixodbc-dev \
+python-is-python3 \
+    && \
+    apt-get -y autoremove && \
+    apt-get -y clean && \
+    rm -rf /var/cache/apt/archives/* && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN ROOT_GIT_URL=https://github.com/root-project/root.git \
+    && if [ -z "$(git ls-remote --heads $ROOT_GIT_URL $ROOT_VERSION)" ] ; then \
+    export ROOT_GIT_REVISION="v$(echo $ROOT_VERSION | cut -d. -f1)-$(echo $ROOT_VERSION | cut -d. -f2)-$(echo $ROOT_VERSION | cut -d. -f3)" \
+    ; else \
+    export ROOT_GIT_REVISION=$ROOT_VERSION \
+    ; fi \
+    # Above lines will set ROOT_GIT_REVISION to ROOT_VERSION argument if it corresponds to a valid branch name (such as ROOT_VERSION=master),
+    # otherwise it will assume its a semantic version string and try to convert it into the tag format (such as 6.26.00 -> v6-26-00)
+    && git clone --branch $ROOT_GIT_REVISION --depth=1 $ROOT_GIT_URL /tmp/source \
+    && cd /tmp/source \
+    && mkdir -p /tmp/build &&  cd /tmp/build \
+    && cmake -G Ninja /tmp/source \
+    -DCMAKE_CXX_STANDARD=$CMAKE_CXX_STANDARD \
+    -Dgnuinstall=ON \
+    -Dsoversion=ON \
+    # For ROOT version 6.26.00 it is necessary to set `-Druntime_cxxmodules=OFF` (https://github.com/root-project/root/pull/10198)
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_BINDIR=bin \
+    -DCMAKE_INSTALL_CMAKEDIR=lib/x86_64-linux-gnu/cmake/ROOT \
+    -DCMAKE_INSTALL_DATAROOTDIR=share \
+    -DCMAKE_INSTALL_DATADIR=share/root \
+    -DCMAKE_INSTALL_DOCDIR=share/doc/root \
+    -DCMAKE_INSTALL_ELISPDIR=share/emacs/site-lisp \
+    -DCMAKE_INSTALL_FONTDIR=share/root/fonts \
+    -DCMAKE_INSTALL_ICONDIR=share/root/icons \
+    -DCMAKE_INSTALL_INCLUDEDIR=include/ROOT \
+    -DCMAKE_INSTALL_JSROOTDIR=share/root/js \
+    -DCMAKE_INSTALL_LIBDIR=lib/x86_64-linux-gnu \
+    -DCMAKE_INSTALL_MACRODIR=share/root/macros \
+    -DCMAKE_INSTALL_MANDIR=share/man \
+    -DCMAKE_INSTALL_OPENUI5DIR=share/root/ui5 \
+    -DCMAKE_INSTALL_PYTHONDIR=lib/python3/dist-packages \
+    -DCMAKE_INSTALL_SRCDIR=/dev/null \
+    -DCMAKE_INSTALL_SYSCONFDIR=/etc/root \
+    -DCMAKE_INSTALL_TUTDIR=share/root/tutorials \
+    && ninja install \
+    && rm -rf /tmp/build /tmp/source
+
+
