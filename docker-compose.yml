@@ -23,7 +23,7 @@ services:
       entrypoint: ["/usr/bin/bash", "-l"]
       volumes:
          - geant4-datasets:/opt/geant4/data:ro
-         - docker-home:/root
+         - .:/root
       working_dir: /root
    geant4-gui:
       image: "carlomt/geant4:latest-gui"
@@ -35,14 +35,13 @@ services:
       volumes:
          - X11-unix:/tmp/.X11-unix
          - geant4-datasets:/opt/geant4/data:ro
-         - docker-home:/root
+         - .:/root
       working_dir: /root
    prepare:
       image: "carlomt/geant4:latest"
       command:
         - |
           /opt/geant4/bin/geant4-config --install-datasets
-
       tty: true
       volumes:
          - geant4-datasets:/opt/geant4/data
@@ -53,12 +52,6 @@ volumes:
          type: 'none'
          o: 'bind'
          device: './geant4-datasets'      
-   docker-home:
-       driver: local
-       driver_opts:
-          type: 'none'
-          o: 'bind'
-          device: '${DOCKERHOME}'
    X11-unix:
        driver: local
        driver_opts:

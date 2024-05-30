@@ -1,7 +1,7 @@
-FROM debian:bookworm as common
+FROM debian:bookworm-slim as common
 LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 
-ARG G4_VERSION=11.2.1
+ARG G4_VERSION
 
 #labels
 LABEL org.label-schema.geant4-version=$G4_VERSION
