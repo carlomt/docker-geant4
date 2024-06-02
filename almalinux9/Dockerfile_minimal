@@ -11,8 +11,9 @@ LABEL org.label-schema.description="Geant4 Docker image"
 LABEL org.label-schema.url="https://github.com/carlomt/docker-geant4"
 LABEL org.label-schema.docker.cmd="docker build -t carlomt/geant4:latest --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --no-cache=true ."
 
-RUN microdnf --enablerepo=crb install -y \
-    epel-release \
+RUN microdnf install -y epel-release && \
+    /usr/bin/crb enable && \
+    microdnf --enablerepo=crb install -y \
     cmake \
     expat expat-devel \
     gcc \
@@ -20,6 +21,7 @@ RUN microdnf --enablerepo=crb install -y \
     ninja-build \
     xerces-c xerces-c-devel \
     which \
+    tar \
     && \
     microdnf clean all
 
