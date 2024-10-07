@@ -139,11 +139,11 @@ curl https://raw.githubusercontent.com/carlomt/docker-geant4/main/env_mac --outp
 
 run:
 ```
-docker compose run prepare
+docker compose run --rm prepare
 ```
 it will create the subfolders, download the Geant4 datasets and source code. Once it has finished, you can run the Geant4 container:
 ```
-docker compose run geant4
+docker compose run --rm geant4
 ```
 The home in the container is mapped to a subfolder called `workdir` created in the folder where you placed the `docker-compose.yml` and `.env` files
 
@@ -157,7 +157,7 @@ mkdir workdir
 
 If you need the Geant4 GUI (once you installed the needed preliminary software on your host opearing system as described in the dedicated section of this file), you can run the docker with:
 ```
-docker compose run geant4-gui
+docker compose run --rm geant4-gui
 ```
 Remember that still you should enable the X11 forwarding every time you reboot (or restart the X11 server), accordingly to your operating system:
 
@@ -172,9 +172,9 @@ xhost +localhost
 
 You can check X11 forwarding with:
 ```
-docker compose run xeyes
+docker compose run --rm xeyes
 ```
 and 3D acceleration with:
 ```
-docker compose run gears
+docker compose run --rm gears
 ```
