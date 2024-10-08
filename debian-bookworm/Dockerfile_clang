@@ -48,7 +48,7 @@ RUN mkdir -p /tmp/cmake/ && \
     --output /tmp/cmake.tar.gz && \
     tar xf /tmp/cmake.tar.gz -C /tmp/cmake && \
     cd /tmp/cmake/cmake-${CMAKE_VERSION} && \
-     ./bootstrap && make && make install
+     ./bootstrap && make -j `nproc` && make install
 
 #######################################################################
 
