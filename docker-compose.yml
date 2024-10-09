@@ -1,4 +1,3 @@
-version: "3.9"
 services:
    xeyes:
       image: "carlomt/xeyes"
@@ -20,28 +19,25 @@ services:
       image: "carlomt/geant4:latest"
       stdin_open: true
       tty: true
-      entrypoint: ["/usr/bin/bash", "-l"]
       volumes:
          - geant4-datasets:/opt/geant4/data:ro
-         - .:/root
-      working_dir: /root
+         - .:/workspace
    geant4-gui:
       image: "carlomt/geant4:latest-gui"
       stdin_open: true
       tty: true
       environment:
          - DISPLAY=${DOCKERDISPLAY}
-      entrypoint: ["/usr/bin/bash", "-l"]
       volumes:
          - X11-unix:/tmp/.X11-unix
          - geant4-datasets:/opt/geant4/data:ro
-         - .:/root
-      working_dir: /root
+         - .:/workspace
    prepare:
       image: "carlomt/geant4:latest"
-      command:
-        - |
-          /opt/geant4/bin/geant4-config --install-datasets
+      command: >
+        /bin/bash -c "
+        /opt/geant4/bin/geant4-config --install-datasets "      
+      stdin_open: true
       tty: true
       volumes:
          - geant4-datasets:/opt/geant4/data
@@ -51,7 +47,7 @@ volumes:
       driver_opts:
          type: 'none'
          o: 'bind'
-         device: './geant4-datasets'      
+         device: './geant4-datasets' #change this path
    X11-unix:
        driver: local
        driver_opts:
