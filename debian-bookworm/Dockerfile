@@ -42,7 +42,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 
 FROM common AS builder
 
-RUN mkdir -p /tmp/geant4/build && \
+RUN echo "Geant4 version: {G4_VERSION}" && \
+    mkdir -p /tmp/geant4/build && \
     mkdir -p /opt/geant4/ && \
     curl https://geant4-data.web.cern.ch/geant4-data/releases/source/geant4-v${G4_VERSION}.tar.gz \
     --output /tmp/geant4.tar.gz && \
