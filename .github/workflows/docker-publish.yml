@@ -28,7 +28,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+      - name: Set Geant4 version
+        run: echo "G4_VERSION=$(cat VERSION)" >> $G4_VERSION
       - name: Install cosign
         if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@v3.8.0
