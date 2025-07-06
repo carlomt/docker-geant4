@@ -14,7 +14,7 @@ alias ll='ls -ltrh'
 #export PATH=/opt/cmake/bin/:$PATH
 
 # Geant4
-source  /opt/geant4/bin/geant4.sh
+source  /usr/local/bin/geant4.sh
 
 echo " "
 echo "## Compiler version ##############################################################################"
@@ -27,7 +27,7 @@ echo "## Geant4 version ########################################################
 geant4-config --version
 echo " "
 echo "## checking Geant4 datasets #################################################################"
-/opt/geant4/bin/geant4-config --check-datasets
+geant4-config --check-datasets
 echo " "
 echo "To keep the size of the Docker images limited, the Geant4 datasets are not installed."
 echo "They are expect to be found in /opt/geant4/data"

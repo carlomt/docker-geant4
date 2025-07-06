@@ -1,4 +1,4 @@
-FROM almalinux:9 as common
+FROM almalinux:9 AS common
 LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 
 ARG G4_VERSION
@@ -34,7 +34,7 @@ RUN mkdir -p /tmp/geant4/build && \
     tar xf /tmp/geant4.tar.gz -C /tmp/geant4/ && \
     mv /tmp/geant4/geant4-v${G4_VERSION}/ /tmp/geant4/src/ && \
     cd /tmp/geant4/build && \
-    cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/opt/geant4 \
+    cmake -G Ninja \
     -DGEANT4_INSTALL_DATA=OFF \
     -DGEANT4_INSTALL_DATADIR=/opt/geant4/data \
     -DGEANT4_BUILD_MULTITHREADED=ON \
