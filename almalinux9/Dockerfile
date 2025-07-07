@@ -19,6 +19,7 @@ RUN dnf install -y epel-release && \
     g++ \
     ninja-build \
     xerces-c xerces-c-devel \
+    which \
     && \
     dnf clean all
     
