@@ -1,8 +1,8 @@
-FROM almalinux:9.3 AS common
+FROM almalinux:9 AS common
 LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 
 ARG G4_VERSION
-ARG CMAKE_VERSION=3.30.4
+ARG CMAKE_VERSION=4.0.3
 
 #labels
 LABEL org.label-schema.geant4-version=$G4_VERSION
@@ -17,8 +17,9 @@ RUN dnf --enablerepo=crb install -y \
     expat expat-devel  \
     gcc \
     g++ \
-    ninja-build && \     
+    ninja-build \
     xerces-c xerces-c-devel \
+    && \
     dnf clean all
 
 RUN mkdir -p /tmp/cmake/ && \
@@ -44,7 +45,7 @@ RUN mkdir -p /tmp/geant4/build && \
     cd /tmp/geant4/build && \
     cmake -G Ninja \
     -DGEANT4_INSTALL_DATA=OFF \
-    -DGEANT4_INSTALL_DATADIR=/opt/geant4/data \
+    -DGEANT4_INSTALL_DATADIR=/g4data \    
     -DGEANT4_BUILD_MULTITHREADED=ON \
     -DGEANT4_USE_GDML=ON \
     -DGEANT4_USE_QT=OFF \
@@ -57,9 +58,9 @@ RUN mkdir -p /tmp/geant4/build && \
 
 FROM common
 
-COPY --from=builder /opt/geant4/ /opt/geant4/
+COPY --from=builder /usr/local/ /usr/local/
 
-RUN mkdir -p /opt/geant4/data && chmod 777 /opt/geant4/data
+RUN mkdir -p /g4data && chmod 777 /g4data
 
 COPY gcc.sh /etc/profile.d/02-gcc.sh
 COPY bashrc.sh /etc/profile.d/03-custom.sh

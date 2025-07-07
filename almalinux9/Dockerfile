@@ -19,7 +19,6 @@ RUN dnf install -y epel-release && \
     g++ \
     ninja-build \
     xerces-c xerces-c-devel \
-    which \
     && \
     dnf clean all
     
@@ -36,7 +35,7 @@ RUN mkdir -p /tmp/geant4/build && \
     cd /tmp/geant4/build && \
     cmake -G Ninja \
     -DGEANT4_INSTALL_DATA=OFF \
-    -DGEANT4_INSTALL_DATADIR=/opt/geant4/data \
+    -DGEANT4_INSTALL_DATADIR=/g4data \
     -DGEANT4_BUILD_MULTITHREADED=ON \
     -DGEANT4_USE_GDML=ON \
     -DGEANT4_USE_QT=OFF \
@@ -49,9 +48,9 @@ RUN mkdir -p /tmp/geant4/build && \
 
 FROM common
 
-COPY --from=builder /opt/geant4/ /opt/geant4/
+COPY --from=builder /usr/local/ /usr/local/
 
-RUN mkdir -p /opt/geant4/data && chmod 777 /opt/geant4/data
+RUN mkdir -p /g4data && chmod 777 /g4data
 
 # Set the entrypoint script to set Geant4 environment variables
 COPY bashrc.sh /opt/bashrc.sh
