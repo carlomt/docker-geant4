@@ -46,19 +46,22 @@ RUN dnf -y install \
 #      ./bootstrap && \
 #      make -j`nproc` && \
 #      make install
-RUN case "${TARGETARCH}" in \
-        amd64) CMAKE_ARCH="x86_64" ;; \
-        arm64) CMAKE_ARCH="aarch64" ;; \
-        *) echo "Unsupported TARGETARCH: ${TARGETARCH}" >&2; exit 1 ;; \
-	    esac && \
-        mkdir -p /opt/cmake /tmp/cmake && \
-	curl -fsSL \
-            "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-${CMAKE_ARCH}.tar.gz" \
-            --output /tmp/cmake.tar.gz && \
-        tar xf /tmp/cmake.tar.gz -C /tmp/cmake --strip-components=1 && \
-        cp -a /tmp/cmake/. /opt/cmake/ && \
-	cmake --version && \
-	rm -rf /tmp/cmake /tmp/cmake.tar.gz
+RUN test -n "${CMAKE_VERSION}" || (echo "ERROR: CMAKE_VERSION is not set" >&2; exit 1) && \
+    case "${TARGETARCH}" in \
+      amd64) CMAKE_ARCH="x86_64" ;; \
+      arm64) CMAKE_ARCH="aarch64" ;; \
+      *) echo "Unsupported TARGETARCH: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac && \
+    CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-${CMAKE_ARCH}.tar.gz" && \
+    echo "Downloading CMake from: ${CMAKE_URL}" && \
+    mkdir -p /opt/cmake /tmp/cmake && \
+    curl -fsSL --retry 5 --retry-delay 10 \
+      "${CMAKE_URL}" \
+      --output /tmp/cmake.tar.gz && \
+    tar -xzf /tmp/cmake.tar.gz -C /tmp/cmake --strip-components=1 && \
+    cp -a /tmp/cmake/. /opt/cmake/ && \
+    cmake --version && \
+    rm -rf /tmp/cmake /tmp/cmake.tar.gz
 
 #######################################################################
 
