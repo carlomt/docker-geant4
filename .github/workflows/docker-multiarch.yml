@@ -1,0 +1,353 @@
+name: Geant4 Docker Multiarch Image CI
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_IMAGE: carlomt/geant4
+  GHCR_IMAGE: ghcr.io/${{ github.repository_owner }}/geant4
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  docker_build:
+    name: Build ${{ matrix.tag_suffix }} ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 180
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Default Ubuntu image
+          - variant: ubuntu
+            tag_suffix: ubuntu
+            context: ./ubuntu-jammy
+            dockerfile: ./ubuntu-jammy/Dockerfile
+            runner: ubuntu-24.04
+            arch: amd64
+          - variant: ubuntu
+            tag_suffix: ubuntu
+            context: ./ubuntu-jammy
+            dockerfile: ./ubuntu-jammy/Dockerfile
+            runner: ubuntu-24.04-arm
+            arch: arm64
+
+          # Ubuntu + Clang
+          - variant: clang-ubuntu
+            tag_suffix: clang-ubuntu
+            context: ./ubuntu-jammy
+            dockerfile: ./ubuntu-jammy/Dockerfile_clang
+            runner: ubuntu-24.04
+            arch: amd64
+          - variant: clang-ubuntu
+            tag_suffix: clang-ubuntu
+            context: ./ubuntu-jammy
+            dockerfile: ./ubuntu-jammy/Dockerfile_clang
+            runner: ubuntu-24.04-arm
+            arch: arm64
+
+          # Ubuntu GUI
+          - variant: gui
+            tag_suffix: gui
+            context: ./ubuntu-jammy
+            dockerfile: ./ubuntu-jammy/Dockerfile_gui
+            runner: ubuntu-24.04
+            arch: amd64
+          - variant: gui
+            tag_suffix: gui
+            context: ./ubuntu-jammy
+            dockerfile: ./ubuntu-jammy/Dockerfile_gui
+            runner: ubuntu-24.04-arm
+            arch: arm64
+
+          # Debian Bookworm
+          - variant: bookworm
+            tag_suffix: bookworm
+            context: ./debian-bookworm
+            dockerfile: ./debian-bookworm/Dockerfile
+            runner: ubuntu-24.04
+            arch: amd64
+          - variant: bookworm
+            tag_suffix: bookworm
+            context: ./debian-bookworm
+            dockerfile: ./debian-bookworm/Dockerfile
+            runner: ubuntu-24.04-arm
+            arch: arm64
+
+          # Debian Bookworm + Clang
+          - variant: clang-bookworm
+            tag_suffix: clang-bookworm
+            context: ./debian-bookworm
+            dockerfile: ./debian-bookworm/Dockerfile_clang
+            runner: ubuntu-24.04
+            arch: amd64
+          - variant: clang-bookworm
+            tag_suffix: clang-bookworm
+            context: ./debian-bookworm
+            dockerfile: ./debian-bookworm/Dockerfile_clang
+            runner: ubuntu-24.04-arm
+            arch: arm64
+
+          # AlmaLinux 9
+          - variant: almalinux9
+            tag_suffix: almalinux9
+            context: ./almalinux9
+            dockerfile: ./almalinux9/Dockerfile
+            runner: ubuntu-24.04
+            arch: amd64
+          - variant: almalinux9
+            tag_suffix: almalinux9
+            context: ./almalinux9
+            dockerfile: ./almalinux9/Dockerfile
+            runner: ubuntu-24.04-arm
+            arch: arm64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set build variables from tag
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          G4_VERSION="${GITHUB_REF_NAME#v}"
+
+          if [ -z "$G4_VERSION" ] || [ "$G4_VERSION" = "$GITHUB_REF_NAME" ]; then
+            echo "This workflow expects tags like v11.4.1" >&2
+            exit 1
+          fi
+
+          owner_lower="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+
+          echo "G4_VERSION=${G4_VERSION}" >> "$GITHUB_ENV"
+          echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+          echo "GHCR_IMAGE=ghcr.io/${owner_lower}/geant4" >> "$GITHUB_ENV"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ env.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker Hub image by digest
+        id: build_dockerhub
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/${{ matrix.arch }}
+          outputs: type=image,name=${{ env.DOCKERHUB_IMAGE }},push-by-digest=true,name-canonical=true,push=true
+          build-args: |
+            G4_VERSION=${{ env.G4_VERSION }}
+            BUILD_DATE=${{ env.BUILD_DATE }}
+          cache-from: type=gha,scope=geant4-${{ matrix.variant }}-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=geant4-${{ matrix.variant }}-${{ matrix.arch }}
+
+      - name: Build and push GHCR image by digest
+        id: build_ghcr
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/${{ matrix.arch }}
+          outputs: type=image,name=${{ env.GHCR_IMAGE }},push-by-digest=true,name-canonical=true,push=true
+          build-args: |
+            G4_VERSION=${{ env.G4_VERSION }}
+            BUILD_DATE=${{ env.BUILD_DATE }}
+          cache-from: type=gha,scope=geant4-${{ matrix.variant }}-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=geant4-ghcr-${{ matrix.variant }}-${{ matrix.arch }}
+
+      - name: Export Docker Hub digest
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/digests/dockerhub
+          digest="${{ steps.build_dockerhub.outputs.digest }}"
+          touch "/tmp/digests/dockerhub/${digest#sha256:}"
+
+      - name: Export GHCR digest
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/digests/ghcr
+          digest="${{ steps.build_ghcr.outputs.digest }}"
+          touch "/tmp/digests/ghcr/${digest#sha256:}"
+
+      - name: Upload Docker Hub digest artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: digests-dockerhub-${{ matrix.variant }}-${{ matrix.arch }}
+          path: /tmp/digests/dockerhub/*
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload GHCR digest artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: digests-ghcr-${{ matrix.variant }}-${{ matrix.arch }}
+          path: /tmp/digests/ghcr/*
+          if-no-files-found: error
+          retention-days: 1
+
+  docker_manifest:
+    name: Create manifest ${{ matrix.tag_suffix }}
+    needs: docker_build
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: ubuntu
+            tag_suffix: ubuntu
+          - variant: clang-ubuntu
+            tag_suffix: clang-ubuntu
+          - variant: gui
+            tag_suffix: gui
+          - variant: bookworm
+            tag_suffix: bookworm
+          - variant: clang-bookworm
+            tag_suffix: clang-bookworm
+          - variant: almalinux9
+            tag_suffix: almalinux9
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set build variables from tag
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          G4_VERSION="${GITHUB_REF_NAME#v}"
+
+          if [ -z "$G4_VERSION" ] || [ "$G4_VERSION" = "$GITHUB_REF_NAME" ]; then
+            echo "This workflow expects tags like v11.4.1" >&2
+            exit 1
+          fi
+
+          owner_lower="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+
+          echo "G4_VERSION=${G4_VERSION}" >> "$GITHUB_ENV"
+          echo "GHCR_IMAGE=ghcr.io/${owner_lower}/geant4" >> "$GITHUB_ENV"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ env.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Download Docker Hub digests
+        uses: actions/download-artifact@v7
+        with:
+          path: /tmp/digests/dockerhub
+          pattern: digests-dockerhub-${{ matrix.variant }}-*
+          merge-multiple: true
+
+      - name: Download GHCR digests
+        uses: actions/download-artifact@v7
+        with:
+          path: /tmp/digests/ghcr
+          pattern: digests-ghcr-${{ matrix.variant }}-*
+          merge-multiple: true
+
+      - name: Create and push Docker Hub manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          docker_refs=()
+          for digest_file in /tmp/digests/dockerhub/*; do
+            [ -e "$digest_file" ] || continue
+            digest="$(basename "$digest_file")"
+            docker_refs+=("${DOCKERHUB_IMAGE}@sha256:${digest}")
+          done
+
+          if [ "${#docker_refs[@]}" -eq 0 ]; then
+            echo "No Docker Hub digests found" >&2
+            exit 1
+          fi
+
+          tags=("-t" "${DOCKERHUB_IMAGE}:${G4_VERSION}-${{ matrix.tag_suffix }}")
+
+          if [ "${{ matrix.variant }}" = "ubuntu" ]; then
+            tags+=("-t" "${DOCKERHUB_IMAGE}:${G4_VERSION}")
+            tags+=("-t" "${DOCKERHUB_IMAGE}:latest")
+          fi
+
+          if [ "${{ matrix.variant }}" = "gui" ]; then
+            tags+=("-t" "${DOCKERHUB_IMAGE}:latest-gui")
+          fi
+
+          docker buildx imagetools create \
+            "${tags[@]}" \
+            "${docker_refs[@]}"
+
+      - name: Create and push GHCR manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ghcr_refs=()
+          for digest_file in /tmp/digests/ghcr/*; do
+            [ -e "$digest_file" ] || continue
+            digest="$(basename "$digest_file")"
+            ghcr_refs+=("${GHCR_IMAGE}@sha256:${digest}")
+          done
+
+          if [ "${#ghcr_refs[@]}" -eq 0 ]; then
+            echo "No GHCR digests found" >&2
+            exit 1
+          fi
+
+          tags=("-t" "${GHCR_IMAGE}:${G4_VERSION}-${{ matrix.tag_suffix }}")
+
+          if [ "${{ matrix.variant }}" = "ubuntu" ]; then
+            tags+=("-t" "${GHCR_IMAGE}:${G4_VERSION}")
+            tags+=("-t" "${GHCR_IMAGE}:latest")
+          fi
+
+          if [ "${{ matrix.variant }}" = "gui" ]; then
+            tags+=("-t" "${GHCR_IMAGE}:latest-gui")
+          fi
+
+          docker buildx imagetools create \
+            "${tags[@]}" \
+            "${ghcr_refs[@]}"
+
+      - name: Inspect Docker Hub manifest
+        run: |
+          docker buildx imagetools inspect "${DOCKERHUB_IMAGE}:${G4_VERSION}-${{ matrix.tag_suffix }}"
+
+      - name: Inspect GHCR manifest
+        run: |
+          docker buildx imagetools inspect "${GHCR_IMAGE}:${G4_VERSION}-${{ matrix.tag_suffix }}"
