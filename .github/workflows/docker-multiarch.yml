@@ -129,6 +129,7 @@ jobs:
           owner_lower="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
 
           echo "G4_VERSION=${G4_VERSION}" >> "$GITHUB_ENV"
+          echo "CMAKE_VERSION=${CMAKE_VERSION}" >> "$GITHUB_ENV"
           echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
           echo "GHCR_IMAGE=ghcr.io/${owner_lower}/geant4" >> "$GITHUB_ENV"
 
@@ -158,6 +159,7 @@ jobs:
           outputs: type=image,name=${{ env.DOCKERHUB_IMAGE }},push-by-digest=true,name-canonical=true,push=true
           build-args: |
             G4_VERSION=${{ env.G4_VERSION }}
+            CMAKE_VERSION=${{ env.CMAKE_VERSION }}
             BUILD_DATE=${{ env.BUILD_DATE }}
           cache-from: type=gha,scope=geant4-${{ matrix.variant }}-${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=geant4-${{ matrix.variant }}-${{ matrix.arch }}
@@ -172,6 +174,7 @@ jobs:
           outputs: type=image,name=${{ env.GHCR_IMAGE }},push-by-digest=true,name-canonical=true,push=true
           build-args: |
             G4_VERSION=${{ env.G4_VERSION }}
+            CMAKE_VERSION=${{ env.CMAKE_VERSION }}
             BUILD_DATE=${{ env.BUILD_DATE }}
           cache-from: type=gha,scope=geant4-${{ matrix.variant }}-${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=geant4-ghcr-${{ matrix.variant }}-${{ matrix.arch }}
@@ -219,8 +222,8 @@ jobs:
         include:
           - variant: ubuntu
             tag_suffix: ubuntu
-          - variant: clang-ubuntu
-            tag_suffix: clang-ubuntu
+          # - variant: clang-ubuntu
+          #   tag_suffix: clang-ubuntu
           - variant: gui
             tag_suffix: gui
           - variant: bookworm
