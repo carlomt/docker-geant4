@@ -20,7 +20,7 @@ jobs:
   docker_build:
     name: Build ${{ matrix.tag_suffix }} ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 180
+    timeout-minutes: 480
 
     strategy:
       fail-fast: false
