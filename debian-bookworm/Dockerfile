@@ -3,8 +3,9 @@ FROM debian:bookworm-slim AS common
 LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 
 ARG G4_VERSION
-ARG BUILD_DATE
 ARG CMAKE_VERSION
+ARG BUILD_DATE
+ARG TARGETARCH
 
 LABEL org.label-schema.geant4-version=$G4_VERSION
 LABEL org.label-schema.build-date=$BUILD_DATE
@@ -17,6 +18,7 @@ ENV CC=/usr/bin/gcc
 ENV CXX=/usr/bin/g++
 
 ENV LANG=C.UTF-8
+ENV PATH="/opt/cmake/bin:${PATH}"
 
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 
@@ -40,22 +42,19 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     rm -rf /var/cache/apt/archives/* && \
     rm -rf /var/lib/apt/lists/*
 
-RUN case "$(uname -m)" in \
-      x86_64) CMAKE_ARCH="x86_64" ;; \
-      aarch64) CMAKE_ARCH="aarch64" ;; \
-      *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;; \
-    esac && \
-    mkdir -p /opt/cmake /tmp/cmake && \
-    curl -fsSL \
-      "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-${CMAKE_ARCH}.tar.gz" \
-      --output /tmp/cmake.tar.gz && \
-    tar -xzf /tmp/cmake.tar.gz -C /tmp/cmake --strip-components=1 && \
-    cp -a /tmp/cmake/. /opt/cmake/ && \
-    ln -sf /opt/cmake/bin/cmake /usr/local/bin/cmake && \
-    ln -sf /opt/cmake/bin/ctest /usr/local/bin/ctest && \
-    ln -sf /opt/cmake/bin/cpack /usr/local/bin/cpack && \
-    cmake --version && \
-    rm -rf /tmp/cmake /tmp/cmake.tar.gz
+RUN case "${TARGETARCH}" in \
+        amd64) CMAKE_ARCH="x86_64" ;; \
+        arm64) CMAKE_ARCH="aarch64" ;; \
+        *) echo "Unsupported TARGETARCH: ${TARGETARCH}" >&2; exit 1 ;; \
+	    esac && \
+        mkdir -p /opt/cmake /tmp/cmake && \
+	curl -fsSL \
+            "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-${CMAKE_ARCH}.tar.gz" \
+            --output /tmp/cmake.tar.gz && \
+        tar xf /tmp/cmake.tar.gz -C /tmp/cmake --strip-components=1 && \
+        cp -a /tmp/cmake/. /opt/cmake/ && \
+	cmake --version && \
+	rm -rf /tmp/cmake /tmp/cmake.tar.gz
 
 #######################################################################
 

@@ -13,6 +13,7 @@ env:
   DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
   DOCKERHUB_IMAGE: carlomt/geant4
   GHCR_IMAGE: ghcr.io/${{ github.repository_owner }}/geant4
+  CMAKE_VERSION: "4.3.3"
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:

@@ -5,7 +5,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 
 ARG G4_VERSION
-ARG CMAKE_VERSION=4.3.3
+ARG CMAKE_VERSION
 ARG BUILD_DATE
 ARG TARGETARCH
 
