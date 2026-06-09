@@ -1,0 +1,67 @@
+name: Sync Geant4 upstream tags
+
+on:
+  schedule:
+    # Ogni giorno alle 06:15 UTC
+    - cron: "15 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-tags:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout docker-geant4
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Find latest Geant4 release tag
+        id: upstream
+        run: |
+          set -euo pipefail
+
+          latest_tag="$(
+            git ls-remote --tags --sort='v:refname' https://github.com/Geant4/geant4.git \
+              | awk -F/ '/refs\/tags\/v[0-9]+\.[0-9]+\.[0-9]+$/ {print $NF}' \
+              | tail -n 1
+          )"
+
+          if [ -z "$latest_tag" ]; then
+            echo "No upstream Geant4 tag found" >&2
+            exit 1
+          fi
+
+          echo "Latest upstream tag: ${latest_tag}"
+          echo "tag=${latest_tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Check whether local tag already exists
+        id: local
+        run: |
+          set -euo pipefail
+
+          tag="${{ steps.upstream.outputs.tag }}"
+
+          if git ls-remote --exit-code --tags origin "refs/tags/${tag}" > /dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Tag ${tag} already exists in this repository"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Tag ${tag} does not exist in this repository"
+          fi
+
+      - name: Create matching tag in this repository
+        if: steps.local.outputs.exists == 'false'
+        run: |
+          set -euo pipefail
+
+          tag="${{ steps.upstream.outputs.tag }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git tag -a "${tag}" -m "Trigger Geant4 Docker build for upstream ${tag}"
+          git push origin "refs/tags/${tag}"
