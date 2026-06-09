@@ -1,9 +1,11 @@
-FROM debian:bookworm-slim as common
+FROM debian:bookworm-slim AS common
+
 LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 
 ARG G4_VERSION
+ARG BUILD_DATE
+ARG CMAKE_VERSION
 
-#labels
 LABEL org.label-schema.geant4-version=$G4_VERSION
 LABEL org.label-schema.build-date=$BUILD_DATE
 LABEL org.label-schema.name="carlomt/geant4"
@@ -15,52 +17,68 @@ ENV CC=/usr/bin/gcc
 ENV CXX=/usr/bin/g++
 
 ENV LANG=C.UTF-8
+
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
     apt-get -yq --no-install-recommends install \
-    ca-certificates \
-    curl \
-    cmake \
-    cmake-data \
-    dirmngr \
-    gpg \
-    g++ \
-    libexpat1-dev \
-    libxerces-c-dev \
-    make \
-    ninja-build \
-    pkg-config \
+      ca-certificates \
+      curl \
+      dirmngr \
+      gpg \
+      g++ \      
+      make \
+      ninja-build \
+      pkg-config \
+      libxerces-c-dev \
+      libexpat1-dev \
+      libssl-dev \
     && \
     apt-get -y autoremove && \
     apt-get -y clean && \
     rm -rf /var/cache/apt/archives/* && \
     rm -rf /var/lib/apt/lists/*
 
+RUN case "$(uname -m)" in \
+      x86_64) CMAKE_ARCH="x86_64" ;; \
+      aarch64) CMAKE_ARCH="aarch64" ;; \
+      *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;; \
+    esac && \
+    mkdir -p /opt/cmake /tmp/cmake && \
+    curl -fsSL \
+      "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-${CMAKE_ARCH}.tar.gz" \
+      --output /tmp/cmake.tar.gz && \
+    tar -xzf /tmp/cmake.tar.gz -C /tmp/cmake --strip-components=1 && \
+    cp -a /tmp/cmake/. /opt/cmake/ && \
+    ln -sf /opt/cmake/bin/cmake /usr/local/bin/cmake && \
+    ln -sf /opt/cmake/bin/ctest /usr/local/bin/ctest && \
+    ln -sf /opt/cmake/bin/cpack /usr/local/bin/cpack && \
+    cmake --version && \
+    rm -rf /tmp/cmake /tmp/cmake.tar.gz
+
 #######################################################################
 
 FROM common AS builder
 
-RUN echo "Geant4 version: " ${G4_VERSION} && \
-    mkdir -p /tmp/geant4/build && \
-    mkdir -p /opt/geant4/ && \
-    curl https://geant4-data.web.cern.ch/geant4-data/releases/source/geant4-v${G4_VERSION}.tar.gz \
-    --output /tmp/geant4.tar.gz && \
+RUN mkdir -p /tmp/geant4/build /opt/geant4 && \
+    curl -fsSL \
+      "https://geant4-data.web.cern.ch/geant4-data/releases/source/geant4-v${G4_VERSION}.tar.gz" \
+      --output /tmp/geant4.tar.gz && \
     tar xf /tmp/geant4.tar.gz -C /tmp/geant4/ && \
-    mv /tmp/geant4/geant4-v${G4_VERSION}/ /tmp/geant4/src/ && \
-    cd /tmp/geant4/build && \
-    cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/opt/geant4 \
-    -DGEANT4_INSTALL_DATA=OFF \
-    -DGEANT4_INSTALL_DATADIR=/opt/geant4/data \
-    -DGEANT4_BUILD_MULTITHREADED=ON \
-    -DGEANT4_USE_GDML=ON \
-    -DGEANT4_USE_QT=OFF \
-    -DGEANT4_USE_OPENGL_X11=OFF \
-    -DGEANT4_INSTALL_EXAMPLES=OFF \
-    ../src/ && \
-     ninja install
-    
+    mv "/tmp/geant4/geant4-v${G4_VERSION}" /tmp/geant4/src && \
+    cmake -S /tmp/geant4/src -B /tmp/geant4/build -G Ninja \
+      -DCMAKE_INSTALL_PREFIX=/opt/geant4 \
+      -DGEANT4_INSTALL_DATA=OFF \
+      -DGEANT4_INSTALL_DATADIR=/opt/geant4/data \
+      -DGEANT4_BUILD_MULTITHREADED=ON \
+      -DGEANT4_USE_GDML=ON \
+      -DGEANT4_USE_QT=OFF \
+      -DGEANT4_USE_OPENGL_X11=OFF \
+      -DGEANT4_INSTALL_EXAMPLES=OFF && \
+    cmake --build /tmp/geant4/build --parallel "$(nproc)" && \
+    cmake --install /tmp/geant4/build
+
 #######################################################################
 
 FROM common
@@ -69,12 +87,11 @@ COPY --from=builder /opt/geant4/ /opt/geant4/
 
 RUN mkdir -p /opt/geant4/data && chmod 777 /opt/geant4/data
 
-# Set the entrypoint script to set Geant4 environment variables
 COPY bashrc.sh /opt/bashrc.sh
 RUN chmod +x /opt/bashrc.sh
+
 ENTRYPOINT ["/opt/bashrc.sh"]
 
 WORKDIR /workspace
 
-# Default command to execute if none is provided to docker run
 CMD ["bash"]

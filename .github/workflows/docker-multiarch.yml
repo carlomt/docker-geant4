@@ -39,19 +39,19 @@ jobs:
             runner: ubuntu-24.04-arm
             arch: arm64
 
-          # Ubuntu + Clang
-          - variant: clang-ubuntu
-            tag_suffix: clang-ubuntu
-            context: ./ubuntu-jammy
-            dockerfile: ./ubuntu-jammy/Dockerfile_clang
-            runner: ubuntu-24.04
-            arch: amd64
-          - variant: clang-ubuntu
-            tag_suffix: clang-ubuntu
-            context: ./ubuntu-jammy
-            dockerfile: ./ubuntu-jammy/Dockerfile_clang
-            runner: ubuntu-24.04-arm
-            arch: arm64
+          # # Ubuntu + Clang
+          # - variant: clang-ubuntu
+          #   tag_suffix: clang-ubuntu
+          #   context: ./ubuntu-jammy
+          #   dockerfile: ./ubuntu-jammy/Dockerfile_clang
+          #   runner: ubuntu-24.04
+          #   arch: amd64
+          # - variant: clang-ubuntu
+          #   tag_suffix: clang-ubuntu
+          #   context: ./ubuntu-jammy
+          #   dockerfile: ./ubuntu-jammy/Dockerfile_clang
+          #   runner: ubuntu-24.04-arm
+          #   arch: arm64
 
           # Ubuntu GUI
           - variant: gui
