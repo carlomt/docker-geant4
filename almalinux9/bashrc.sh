@@ -14,7 +14,7 @@ alias ll='ls -ltrh'
 #export PATH=/opt/cmake/bin/:$PATH
 
 # Geant4
-source  /usr/local/bin/geant4.sh
+source  /opt/geant4/bin/geant4.sh
 
 echo " "
 echo "## Compiler version ##############################################################################"

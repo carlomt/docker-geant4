@@ -1,7 +1,23 @@
-qtbase5-dev
-libqt5opengl5-dev
+# qtbase5-dev
+# libqt5opengl5-dev
+# libx11-dev
+# libxmu-dev
+# libgl1-mesa-glx
+# qt3d5-dev
+# libxcb-xkb-dev
+
+# Qt6 development packages
+qt6-base-dev
+qt6-base-dev-tools
+libqt6opengl6-dev
+
+# OpenGL / X11 development packages
+libgl1-mesa-dev
+libglu1-mesa-dev
 libx11-dev
 libxmu-dev
-libgl1-mesa-glx
-qt3d5-dev
+libxi-dev
+libxext-dev
+libxft-dev
+libxpm-dev
 libxcb-xkb-dev
