@@ -5,6 +5,7 @@ LABEL maintainer="carlo.mancini-terracciano@uniroma1.it"
 ARG G4_VERSION
 ARG BUILD_DATE
 ARG CMAKE_VERSION
+ARG TARGETARCH
 
 LABEL org.label-schema.geant4-version=$G4_VERSION
 LABEL org.label-schema.build-date=$BUILD_DATE
