@@ -18,6 +18,7 @@ ENV CC=/usr/bin/clang
 ENV CXX=/usr/bin/clang++
 
 ENV LANG=C.UTF-8
+ENV PATH="/opt/cmake/bin:${PATH}"
 
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 
