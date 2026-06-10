@@ -29,7 +29,6 @@ RUN dnf -y install \
         epel-release && \
         dnf -y --enablerepo=crb install \
             --setopt=install_weak_deps=False \
-	    curl \
             expat-devel \
             gcc \
             gcc-c++ \
