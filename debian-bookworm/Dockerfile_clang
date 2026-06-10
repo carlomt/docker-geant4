@@ -72,7 +72,7 @@ RUN mkdir -p /tmp/geant4/build /opt/geant4 && \
     cmake -S /tmp/geant4/src -B /tmp/geant4/build -G Ninja \
       -DCMAKE_INSTALL_PREFIX=/opt/geant4 \
       -DGEANT4_INSTALL_DATA=OFF \
-      -DGEANT4_INSTALL_DATADIR=/opt/geant4/data \
+      -DGEANT4_INSTALL_DATADIR=/g4data \
       -DGEANT4_BUILD_MULTITHREADED=ON \
       -DGEANT4_USE_GDML=ON \
       -DGEANT4_USE_QT=OFF \
@@ -87,8 +87,10 @@ FROM common
 
 COPY --from=builder /opt/geant4/ /opt/geant4/
 
-RUN mkdir -p /opt/geant4/data && chmod 777 /opt/geant4/data
-
+RUN mkdir -p /g4data && \
+    chmod 777 /g4data && \
+    ln -s /g4data /opt/geant4/data
+    
 COPY bashrc.sh /opt/bashrc.sh
 RUN chmod +x /opt/bashrc.sh
 

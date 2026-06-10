@@ -97,8 +97,9 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 COPY --from=builder /opt/geant4/ /opt/geant4/
 
 RUN mkdir -p /g4data && \
-    chmod 777 /g4data
-
+    chmod 777 /g4data && \
+    ln -s /g4data /opt/geant4/data
+    
 COPY bashrc.sh /opt/bashrc.sh
 
 RUN chmod +x /opt/bashrc.sh
