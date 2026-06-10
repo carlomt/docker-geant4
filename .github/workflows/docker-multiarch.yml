@@ -40,20 +40,6 @@ jobs:
             runner: ubuntu-24.04-arm
             arch: arm64
 
-          # # Ubuntu + Clang
-          # - variant: clang-ubuntu
-          #   tag_suffix: clang-ubuntu
-          #   context: ./ubuntu-jammy
-          #   dockerfile: ./ubuntu-jammy/Dockerfile_clang
-          #   runner: ubuntu-24.04
-          #   arch: amd64
-          # - variant: clang-ubuntu
-          #   tag_suffix: clang-ubuntu
-          #   context: ./ubuntu-jammy
-          #   dockerfile: ./ubuntu-jammy/Dockerfile_clang
-          #   runner: ubuntu-24.04-arm
-          #   arch: arm64
-
           # Ubuntu GUI
           - variant: gui
             tag_suffix: gui
@@ -129,13 +115,11 @@ jobs:
           owner_lower="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
 
           echo "G4_VERSION=${G4_VERSION}" >> "$GITHUB_ENV"
-          echo "CMAKE_VERSION=${CMAKE_VERSION}" >> "$GITHUB_ENV"
           echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
           echo "GHCR_IMAGE=ghcr.io/${owner_lower}/geant4" >> "$GITHUB_ENV"
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
+      # Login first: setup-buildx pulls the BuildKit image.
+      # Doing the login before Buildx avoids anonymous Docker Hub pulls.
       - name: Login to Docker Hub
         uses: docker/login-action@v4
         with:
@@ -149,6 +133,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Use BuildKit from GHCR to avoid occasional registry-1.docker.io timeouts.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          driver-opts: |
+            image=ghcr.io/moby/buildkit:buildx-stable-1
+
       - name: Build and push Docker Hub image by digest
         id: build_dockerhub
         uses: docker/build-push-action@v7
@@ -161,6 +152,7 @@ jobs:
             G4_VERSION=${{ env.G4_VERSION }}
             CMAKE_VERSION=${{ env.CMAKE_VERSION }}
             BUILD_DATE=${{ env.BUILD_DATE }}
+            TARGETARCH=${{ matrix.arch }}
           cache-from: type=gha,scope=geant4-${{ matrix.variant }}-${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=geant4-${{ matrix.variant }}-${{ matrix.arch }}
 
@@ -176,6 +168,7 @@ jobs:
             G4_VERSION=${{ env.G4_VERSION }}
             CMAKE_VERSION=${{ env.CMAKE_VERSION }}
             BUILD_DATE=${{ env.BUILD_DATE }}
+            TARGETARCH=${{ matrix.arch }}
           cache-from: type=gha,scope=geant4-${{ matrix.variant }}-${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=geant4-ghcr-${{ matrix.variant }}-${{ matrix.arch }}
 
@@ -215,6 +208,7 @@ jobs:
     name: Create manifest ${{ matrix.tag_suffix }}
     needs: docker_build
     runs-on: ubuntu-24.04
+    timeout-minutes: 60
 
     strategy:
       fail-fast: false
@@ -222,8 +216,6 @@ jobs:
         include:
           - variant: ubuntu
             tag_suffix: ubuntu
-          # - variant: clang-ubuntu
-          #   tag_suffix: clang-ubuntu
           - variant: gui
             tag_suffix: gui
           - variant: bookworm
@@ -269,6 +261,9 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
+        with:
+          driver-opts: |
+            image=ghcr.io/moby/buildkit:buildx-stable-1
 
       - name: Download Docker Hub digests
         uses: actions/download-artifact@v7
