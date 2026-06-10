@@ -6,3 +6,4 @@ libexpat1-dev
 cmake
 g++
 kitware-archive-keyring
+curl
