@@ -93,6 +93,10 @@ RUN mkdir -p /g4data && \
     chmod 777 /g4data && \
     ln -s /g4data /opt/geant4/data
 
+ENV PATH="/opt/geant4/bin:${PATH}"
+ENV LD_LIBRARY_PATH="/opt/geant4/lib:/opt/geant4/lib64:${LD_LIBRARY_PATH}"
+ENV CMAKE_PREFIX_PATH="/opt/geant4:${CMAKE_PREFIX_PATH}"
+
 COPY ./bashrc.sh /opt/bashrc.sh
 
 RUN chmod +x /opt/bashrc.sh
