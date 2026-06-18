@@ -18,7 +18,8 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-
+          token: ${{ secrets.ACTIONS_TRIGGER_PAT }}
+          
       - name: Find latest Geant4 release tag
         id: upstream
         run: |
